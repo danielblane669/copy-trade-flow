@@ -1,14 +1,36 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout, loading } = useAuth();
+  const navigate = useNavigate();
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  const getUserDisplayName = () => {
+    if (user?.user_metadata?.first_name) {
+      return `${user.user_metadata.first_name}`;
+    }
+    return user?.email?.split('@')[0] || 'User';
   };
 
   return (
@@ -30,12 +52,38 @@ const NavBar = () => {
             <a href="#pricing" className="font-medium text-foreground/80 hover:text-primary transition-colors">Pricing</a>
           </div>
           <div className="flex items-center space-x-4">
-            <Link to="/login">
-              <Button variant="outline">Log in</Button>
-            </Link>
-            <Link to="/signup">
-              <Button className="btn-gradient">Sign up</Button>
-            </Link>
+            {loading ? (
+              <div className="h-9 w-20 bg-gray-200 animate-pulse rounded-md"></div>
+            ) : isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <User size={16} />
+                    {getUserDisplayName()}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>Dashboard</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>Profile</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                    <LogOut size={16} className="mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="outline">Log in</Button>
+                </Link>
+                <Link to="/signup">
+                  <Button className="btn-gradient">Sign up</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -55,14 +103,30 @@ const NavBar = () => {
             <a href="#features" className="py-2 font-medium" onClick={toggleMenu}>Features</a>
             <a href="#traders" className="py-2 font-medium" onClick={toggleMenu}>Traders</a>
             <a href="#pricing" className="py-2 font-medium" onClick={toggleMenu}>Pricing</a>
-            <div className="flex flex-col space-y-3 pt-4 border-t border-border">
-              <Link to="/login" onClick={toggleMenu}>
-                <Button variant="outline" className="w-full">Log in</Button>
-              </Link>
-              <Link to="/signup" onClick={toggleMenu}>
-                <Button className="w-full btn-gradient">Sign up</Button>
-              </Link>
-            </div>
+            {loading ? (
+              <div className="h-9 w-full bg-gray-200 animate-pulse rounded-md"></div>
+            ) : isAuthenticated ? (
+              <>
+                <div className="pt-4 border-t border-border">
+                  <Link to="/dashboard" onClick={toggleMenu}>
+                    <Button variant="outline" className="w-full">Dashboard</Button>
+                  </Link>
+                </div>
+                <Button onClick={handleLogout} variant="destructive" className="w-full">
+                  <LogOut size={16} className="mr-2" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <div className="flex flex-col space-y-3 pt-4 border-t border-border">
+                <Link to="/login" onClick={toggleMenu}>
+                  <Button variant="outline" className="w-full">Log in</Button>
+                </Link>
+                <Link to="/signup" onClick={toggleMenu}>
+                  <Button className="w-full btn-gradient">Sign up</Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
