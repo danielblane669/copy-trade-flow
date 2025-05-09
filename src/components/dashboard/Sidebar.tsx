@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   LayoutDashboard, 
   TrendingUp, 
@@ -12,6 +13,8 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type SidebarItem = {
   name: string;
@@ -28,17 +31,46 @@ const navigationItems: SidebarItem[] = [
   { name: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/dashboard/settings' },
 ];
 
-const Sidebar: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const location = useLocation();
+interface SidebarProps {
+  defaultCollapsed?: boolean;
+}
 
+const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  const { user, logout } = useAuth();
+  
+  // Get user details
+  const firstName = user?.user_metadata?.first_name || 'User';
+  const lastName = user?.user_metadata?.last_name || '';
+  const fullName = `${firstName} ${lastName}`.trim() || 'User';
+  const email = user?.email || '';
+  
+  // Get initials from full name
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2); // Take up to two initials
+  };
+
+  const initials = getInitials(fullName);
+  
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
   };
 
+  // Update collapse state when screen size changes
+  useEffect(() => {
+    setCollapsed(isMobile);
+  }, [isMobile]);
+
   return (
     <div 
-      className={`sidebar bg-sidebar h-screen fixed left-0 top-0 z-40 border-r border-sidebar-border transition-all duration-300 ease-in-out ${
+      className={`sidebar bg-sidebar fixed left-0 top-0 z-40 h-screen border-r border-sidebar-border transition-all duration-300 ease-in-out ${
         collapsed ? 'w-[72px]' : 'w-64'
       }`}
     >
@@ -90,26 +122,33 @@ const Sidebar: React.FC = () => {
           <div className="flex items-center justify-between">
             {!collapsed && (
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-                  <span className="font-semibold text-sm">JD</span>
-                </div>
+                <Avatar className="w-8 h-8">
+                  <AvatarFallback className="bg-secondary text-sm font-semibold">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="truncate">
-                  <div className="text-sm font-medium">John Doe</div>
-                  <div className="text-xs text-sidebar-foreground/70 truncate">john.doe@example.com</div>
+                  <div className="text-sm font-medium">{fullName}</div>
+                  <div className="text-xs text-sidebar-foreground/70 truncate">{email}</div>
                 </div>
               </div>
             )}
             {collapsed && (
-              <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center mx-auto">
-                <span className="font-semibold text-sm">JD</span>
-              </div>
+              <Avatar className="w-8 h-8 mx-auto">
+                <AvatarFallback className="bg-secondary text-sm font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
             )}
           </div>
 
           {/* Logout and collapse buttons */}
           <div className={`mt-3 flex ${collapsed ? 'justify-center' : 'justify-between'}`}>
             {!collapsed && (
-              <button className="flex items-center text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground">
+              <button 
+                onClick={logout}
+                className="flex items-center text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground"
+              >
                 <LogOut className="w-4 h-4 mr-2" />
                 Log out
               </button>

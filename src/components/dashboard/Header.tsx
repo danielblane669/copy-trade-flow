@@ -10,13 +10,13 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
   return (
-    <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b border-border">
+    <header className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:justify-between md:items-center mb-6 pb-4 md:pb-6 border-b border-border">
       <div>
-        <h1 className="text-2xl font-bold">{title}</h1>
-        {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
+        <h1 className="text-xl md:text-2xl font-bold">{title}</h1>
+        {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
       </div>
       
-      <div className="flex items-center space-x-2 mt-4 md:mt-0 w-full md:w-auto">
+      <div className="flex items-center space-x-2 w-full md:w-auto">
         <div className="relative flex-grow md:flex-grow-0 md:w-64">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <input 

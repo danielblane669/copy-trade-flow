@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import AuthRedirect from "@/components/auth/AuthRedirect";
 
 // Pages
 import Index from "./pages/Index";
@@ -24,10 +25,31 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            {/* Public Routes - Redirect to Dashboard if authenticated */}
+            <Route 
+              path="/" 
+              element={
+                <AuthRedirect>
+                  <Index />
+                </AuthRedirect>
+              } 
+            />
+            <Route 
+              path="/login" 
+              element={
+                <AuthRedirect>
+                  <Login />
+                </AuthRedirect>
+              } 
+            />
+            <Route 
+              path="/signup" 
+              element={
+                <AuthRedirect>
+                  <Login />
+                </AuthRedirect>
+              } 
+            />
             
             {/* Protected Routes */}
             <Route 
