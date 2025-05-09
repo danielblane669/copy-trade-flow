@@ -61,16 +61,35 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
   
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
+    
+    // Update parent layout to adjust content margin
+    const sidebarWidth = collapsed ? '256px' : '72px';
+    document.documentElement.style.setProperty('--sidebar-width', sidebarWidth);
+    
+    // Update data attribute for any elements that need to respond to sidebar state
+    document.querySelectorAll('[data-sidebar-expanded]').forEach(el => {
+      el.setAttribute('data-sidebar-expanded', (!collapsed).toString());
+    });
   };
 
   // Update collapse state when screen size changes
   useEffect(() => {
     setCollapsed(isMobile);
-  }, [isMobile]);
+    
+    // Set initial sidebar width CSS variable
+    const sidebarWidth = isMobile || defaultCollapsed ? '72px' : '256px';
+    document.documentElement.style.setProperty('--sidebar-width', sidebarWidth);
+    
+    // Update data attribute
+    const isExpanded = !(isMobile || defaultCollapsed);
+    document.querySelectorAll('[data-sidebar-expanded]').forEach(el => {
+      el.setAttribute('data-sidebar-expanded', isExpanded.toString());
+    });
+  }, [isMobile, defaultCollapsed]);
 
   return (
     <div 
-      className={`sidebar bg-sidebar fixed left-0 top-0 z-40 h-screen border-r border-sidebar-border transition-all duration-300 ease-in-out ${
+      className={`sidebar fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out ${
         collapsed ? 'w-[72px]' : 'w-64'
       }`}
     >

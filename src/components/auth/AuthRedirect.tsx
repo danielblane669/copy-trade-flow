@@ -19,6 +19,7 @@ const AuthRedirect: React.FC<AuthRedirectProps> = ({ children }) => {
     );
   }
 
+  // Redirect authenticated users away from public pages
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
