@@ -66,7 +66,7 @@ const TransactionHistory = () => {
               </TableCell>
               <TableCell className={transaction.transaction_type === 'withdrawal' ? 'text-red-500' : 'text-green-500'}>
                 {transaction.transaction_type === 'withdrawal' ? '-' : '+'}
-                ${parseFloat(transaction.amount).toFixed(2)}
+                ${transaction.amount.toString()}
               </TableCell>
               <TableCell className="capitalize">
                 <span 
