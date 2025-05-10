@@ -10,7 +10,8 @@ import {
   ChevronRight,
   Wallet,
   ArrowDownToLine,
-  ArrowUpFromLine
+  ArrowUpFromLine,
+  FileText
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -26,6 +27,7 @@ const navigationItems: SidebarItem[] = [
   { name: 'Markets', icon: <TrendingUp className="w-5 h-5" />, path: '/dashboard#trading-chart' },
   { name: 'Deposit', icon: <ArrowDownToLine className="w-5 h-5" />, path: '/dashboard/deposit' },
   { name: 'Withdraw', icon: <ArrowUpFromLine className="w-5 h-5" />, path: '/dashboard/withdraw' },
+  { name: 'Transactions', icon: <FileText className="w-5 h-5" />, path: '/dashboard/transactions' },
   { name: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/dashboard/settings' },
 ];
 
