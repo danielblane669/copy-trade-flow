@@ -8,12 +8,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from '@/components/ui/button';
-import { Bitcoin, Ethereum, Bank, Litecoin } from 'lucide-react';
+import { Bitcoin, Coins, Building, DollarSign } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Form,
   FormControl,
@@ -35,9 +36,9 @@ import { Card, CardContent } from '@/components/ui/card';
 // Define cryptocurrency options
 const cryptoOptions = [
   { label: "Bitcoin (BTC)", value: "bitcoin", icon: <Bitcoin className="h-5 w-5 mr-2" /> },
-  { label: "Ethereum (ETH)", value: "ethereum", icon: <Ethereum className="h-5 w-5 mr-2" /> },
-  { label: "Litecoin (LTC)", value: "litecoin", icon: <Litecoin className="h-5 w-5 mr-2" /> },
-  { label: "XRP", value: "xrp", icon: <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor"><path d="M12 24c6.627 0 12-5.373 12-12S18.627 0 12 0 0 5.373 0 12s5.373 12 12 12z" fillOpacity=".5"/><path d="M15.975 11.75a.525.525 0 00-.55-.525H7.9l3.325-3.325a.525.525 0 000-.75.525.525 0 00-.75 0l-4.2 4.2a.525.525 0 000 .75l4.2 4.2a.525.525 0 00.75 0 .525.525 0 000-.75L7.9 12.275h7.525c.3 0 .55-.225.55-.525zm2-4.2L13.775 3.35a.525.525 0 00-.75 0 .525.525 0 000 .75l3.325 3.325H8.825a.525.525 0 00-.525.525c0 .3.225.55.525.55h7.525L13.025 11.825a.525.525 0 000 .75c.1.1.225.15.375.15s.275-.05.375-.15l4.2-4.2a.525.525 0 000-.75v-.075z"/></svg> },
+  { label: "Ethereum (ETH)", value: "ethereum", icon: <Coins className="h-5 w-5 mr-2" /> },
+  { label: "Litecoin (LTC)", value: "litecoin", icon: <Coins className="h-5 w-5 mr-2" /> },
+  { label: "XRP", value: "xrp", icon: <Coins className="h-5 w-5 mr-2" /> },
 ];
 
 // Crypto withdrawal form schema
@@ -67,6 +68,7 @@ const Withdraw = () => {
   const navigate = useNavigate();
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const { user } = useAuth();
   
   const { data: portfolio } = useQuery({
     queryKey: ['portfolio'],
@@ -109,7 +111,8 @@ const Withdraw = () => {
       const { error } = await supabase.from('user_transactions').insert({
         transaction_type: 'withdrawal',
         amount: parseFloat(values.amount),
-        status: 'pending' // Pending until admin approves
+        status: 'pending', // Pending until admin approves
+        user_id: user?.id
       });
       
       if (error) throw error;
@@ -145,7 +148,8 @@ const Withdraw = () => {
       const { error } = await supabase.from('user_transactions').insert({
         transaction_type: 'withdrawal',
         amount: parseFloat(values.amount),
-        status: 'pending' // Pending until admin approves
+        status: 'pending', // Pending until admin approves
+        user_id: user?.id
       });
       
       if (error) throw error;
@@ -235,7 +239,7 @@ const Withdraw = () => {
                 <span>Cryptocurrency</span>
               </TabsTrigger>
               <TabsTrigger value="bank" className="flex items-center gap-2">
-                <Bank className="h-4 w-4" />
+                <Building className="h-4 w-4" />
                 <span>Bank Transfer</span>
               </TabsTrigger>
             </TabsList>

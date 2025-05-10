@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from '@/components/ui/button';
-import { Bitcoin, Ethereum, Litecoin, Upload } from 'lucide-react';
+import { Bitcoin, Coins, DollarSign, Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Form,
@@ -27,13 +27,14 @@ import {
 } from "@/components/ui/select";
 import { generateRandomAddress } from "@/lib/crypto";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Define cryptocurrency options
 const cryptoOptions = [
   { label: "Bitcoin (BTC)", value: "bitcoin", icon: <Bitcoin className="h-5 w-5 mr-2" /> },
-  { label: "Ethereum (ETH)", value: "ethereum", icon: <Ethereum className="h-5 w-5 mr-2" /> },
-  { label: "Litecoin (LTC)", value: "litecoin", icon: <Litecoin className="h-5 w-5 mr-2" /> },
-  { label: "XRP", value: "xrp", icon: <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor"><path d="M12 24c6.627 0 12-5.373 12-12S18.627 0 12 0 0 5.373 0 12s5.373 12 12 12z" fillOpacity=".5"/><path d="M15.975 11.75a.525.525 0 00-.55-.525H7.9l3.325-3.325a.525.525 0 000-.75.525.525 0 00-.75 0l-4.2 4.2a.525.525 0 000 .75l4.2 4.2a.525.525 0 00.75 0 .525.525 0 000-.75L7.9 12.275h7.525c.3 0 .55-.225.55-.525zm2-4.2L13.775 3.35a.525.525 0 00-.75 0 .525.525 0 000 .75l3.325 3.325H8.825a.525.525 0 00-.525.525c0 .3.225.55.525.55h7.525L13.025 11.825a.525.525 0 000 .75c.1.1.225.15.375.15s.275-.05.375-.15l4.2-4.2a.525.525 0 000-.75v-.075z"/></svg> },
+  { label: "Ethereum (ETH)", value: "ethereum", icon: <Coins className="h-5 w-5 mr-2" /> },
+  { label: "Litecoin (LTC)", value: "litecoin", icon: <Coins className="h-5 w-5 mr-2" /> },
+  { label: "XRP", value: "xrp", icon: <Coins className="h-5 w-5 mr-2" /> },
 ];
 
 const formSchema = z.object({
@@ -51,6 +52,7 @@ const Deposit = () => {
   const { toast } = useToast();
   const [walletAddress, setWalletAddress] = useState("");
   const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const { user } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,7 +75,8 @@ const Deposit = () => {
       const { error } = await supabase.from('user_transactions').insert({
         transaction_type: 'deposit',
         amount: parseFloat(values.amount),
-        status: 'pending' // Pending until admin approves
+        status: 'pending', // Pending until admin approves
+        user_id: user?.id
       });
       
       if (error) throw error;
