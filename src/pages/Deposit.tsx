@@ -37,6 +37,7 @@ const cryptoOptions = [
   { label: "XRP", value: "xrp", icon: <Coins className="h-5 w-5 mr-2" /> },
 ];
 
+// Define the correct form schema with proper types
 const formSchema = z.object({
   cryptocurrency: z.string().min(1, { message: "Please select a cryptocurrency" }),
   amount: z.string().min(1, { message: "Amount is required" })
@@ -48,13 +49,16 @@ const formSchema = z.object({
   ),
 });
 
+// Define type for the form data
+type FormValues = z.infer<typeof formSchema>;
+
 const Deposit = () => {
   const { toast } = useToast();
   const [walletAddress, setWalletAddress] = useState("");
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const { user } = useAuth();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       cryptocurrency: "",
@@ -68,7 +72,7 @@ const Deposit = () => {
     setWalletAddress(address);
   };
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: FormValues) {
     setLoadingSubmit(true);
     try {
       // Get the filename from the FileList
@@ -229,7 +233,11 @@ const Deposit = () => {
                             accept="image/*"
                             className="hidden"
                             id="receipt-upload"
-                            onChange={(e) => onChange(e.target.files)}
+                            onChange={(e) => {
+                              if (e.target.files) {
+                                onChange(e.target.files);
+                              }
+                            }}
                             {...rest}
                           />
                           <label 
