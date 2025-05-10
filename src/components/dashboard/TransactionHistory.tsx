@@ -5,19 +5,30 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
-const TransactionHistory = () => {
+const TransactionHistory = ({ limit }: { limit?: number }) => {
+  const { user } = useAuth();
+  
   const { data: transactions, isLoading, error } = useQuery({
     queryKey: ['transactions'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('user_transactions')
         .select('*')
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
+      
+      if (limit) {
+        query = query.limit(limit);
+      }
+      
+      const { data, error } = await query;
       
       if (error) throw error;
       return data || [];
     },
+    enabled: !!user?.id,
   });
 
   if (isLoading) {
@@ -51,6 +62,7 @@ const TransactionHistory = () => {
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Type</TableHead>
+            <TableHead>Details</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
@@ -63,6 +75,12 @@ const TransactionHistory = () => {
               </TableCell>
               <TableCell className="capitalize">
                 {transaction.transaction_type}
+              </TableCell>
+              <TableCell>
+                {transaction.transaction_details || 
+                  (transaction.transaction_type === 'bonus' ? 'Signup Bonus' : 
+                   transaction.transaction_type === 'deposit' ? 'Account Deposit' : 
+                   'Account Withdrawal')}
               </TableCell>
               <TableCell className={transaction.transaction_type === 'withdrawal' ? 'text-red-500' : 'text-green-500'}>
                 {transaction.transaction_type === 'withdrawal' ? '-' : '+'}

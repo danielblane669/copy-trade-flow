@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,9 +39,9 @@ const NavBar = () => {
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link to="/" className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">CT</span>
+            <span className="text-white font-bold text-sm">CB</span>
           </div>
-          <span className="font-bold text-xl">CopyTrade</span>
+          <span className="font-bold text-xl">CryptoBroker</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -48,10 +49,13 @@ const NavBar = () => {
           <div className="flex space-x-6">
             <Link to="/" className="font-medium text-foreground/80 hover:text-primary transition-colors">Home</Link>
             <a href="#features" className="font-medium text-foreground/80 hover:text-primary transition-colors">Features</a>
-            <a href="#traders" className="font-medium text-foreground/80 hover:text-primary transition-colors">Traders</a>
-            <a href="#pricing" className="font-medium text-foreground/80 hover:text-primary transition-colors">Pricing</a>
+            <a href="#how-it-works" className="font-medium text-foreground/80 hover:text-primary transition-colors">How It Works</a>
+            <a href="#testimonials" className="font-medium text-foreground/80 hover:text-primary transition-colors">Testimonials</a>
+            <a href="#faq" className="font-medium text-foreground/80 hover:text-primary transition-colors">FAQ</a>
           </div>
           <div className="flex items-center space-x-4">
+            <ThemeToggle />
+            
             {loading ? (
               <div className="h-9 w-20 bg-gray-200 animate-pulse rounded-md"></div>
             ) : isAuthenticated ? (
@@ -88,7 +92,8 @@ const NavBar = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center space-x-2">
+          <ThemeToggle />
           <button onClick={toggleMenu} className="p-2">
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -101,31 +106,36 @@ const NavBar = () => {
           <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
             <Link to="/" className="py-2 font-medium" onClick={toggleMenu}>Home</Link>
             <a href="#features" className="py-2 font-medium" onClick={toggleMenu}>Features</a>
-            <a href="#traders" className="py-2 font-medium" onClick={toggleMenu}>Traders</a>
-            <a href="#pricing" className="py-2 font-medium" onClick={toggleMenu}>Pricing</a>
+            <a href="#how-it-works" className="py-2 font-medium" onClick={toggleMenu}>How It Works</a>
+            <a href="#testimonials" className="py-2 font-medium" onClick={toggleMenu}>Testimonials</a>
+            <a href="#faq" className="py-2 font-medium" onClick={toggleMenu}>FAQ</a>
+            
             {loading ? (
               <div className="h-9 w-full bg-gray-200 animate-pulse rounded-md"></div>
             ) : isAuthenticated ? (
               <>
-                <div className="pt-4 border-t border-border">
-                  <Link to="/dashboard" onClick={toggleMenu}>
-                    <Button variant="outline" className="w-full">Dashboard</Button>
-                  </Link>
-                </div>
-                <Button onClick={handleLogout} variant="destructive" className="w-full">
-                  <LogOut size={16} className="mr-2" />
-                  Logout
-                </Button>
+                <Link to="/dashboard" className="py-2 font-medium" onClick={toggleMenu}>
+                  Dashboard
+                </Link>
+                <button 
+                  onClick={() => {
+                    handleLogout();
+                    toggleMenu();
+                  }}
+                  className="py-2 text-left font-medium text-red-500"
+                >
+                  Log out
+                </button>
               </>
             ) : (
-              <div className="flex flex-col space-y-3 pt-4 border-t border-border">
+              <>
                 <Link to="/login" onClick={toggleMenu}>
                   <Button variant="outline" className="w-full">Log in</Button>
                 </Link>
                 <Link to="/signup" onClick={toggleMenu}>
-                  <Button className="w-full btn-gradient">Sign up</Button>
+                  <Button className="btn-gradient w-full">Sign up</Button>
                 </Link>
-              </div>
+              </>
             )}
           </div>
         </div>

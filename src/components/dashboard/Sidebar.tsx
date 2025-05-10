@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   LayoutDashboard, 
-  TrendingUp, 
   Settings,
   LogOut,
   ChevronLeft,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 type SidebarItem = {
   name: string;
@@ -24,11 +25,9 @@ type SidebarItem = {
 
 const navigationItems: SidebarItem[] = [
   { name: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard' },
-  { name: 'Markets', icon: <TrendingUp className="w-5 h-5" />, path: '/dashboard#trading-chart' },
   { name: 'Deposit', icon: <ArrowDownToLine className="w-5 h-5" />, path: '/dashboard/deposit' },
   { name: 'Withdraw', icon: <ArrowUpFromLine className="w-5 h-5" />, path: '/dashboard/withdraw' },
   { name: 'Transactions', icon: <FileText className="w-5 h-5" />, path: '/dashboard/transactions' },
-  { name: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/dashboard/settings' },
 ];
 
 interface SidebarProps {
@@ -37,6 +36,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
   const location = useLocation();
   const isMobile = useIsMobile();
   const { user, logout } = useAuth();
@@ -58,17 +58,55 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
   };
 
   const initials = getInitials(fullName);
+
+  // Function to handle mouse enter - expand sidebar
+  const handleMouseEnter = () => {
+    if (isMobile) return; // Don't auto-expand on mobile
+    
+    // Clear any existing timeout
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
+    }
+    
+    if (collapsed) {
+      setCollapsed(false);
+      updateSidebarWidth(false);
+    }
+  };
+  
+  // Function to handle mouse leave - collapse sidebar with delay
+  const handleMouseLeave = () => {
+    if (isMobile) return; // Don't auto-collapse on mobile
+    
+    // Clear any existing timeout
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+    }
+    
+    // Set a new timeout to collapse the sidebar after a short delay
+    const timeout = setTimeout(() => {
+      setCollapsed(true);
+      updateSidebarWidth(true);
+    }, 300); // 300ms delay before collapsing
+    
+    setHoverTimeout(timeout);
+  };
   
   const toggleCollapse = () => {
-    setCollapsed(!collapsed);
-    
+    const newCollapsed = !collapsed;
+    setCollapsed(newCollapsed);
+    updateSidebarWidth(newCollapsed);
+  };
+  
+  const updateSidebarWidth = (isCollapsed: boolean) => {
     // Update parent layout to adjust content margin
-    const sidebarWidth = collapsed ? '256px' : '72px';
+    const sidebarWidth = isCollapsed ? '72px' : '256px';
     document.documentElement.style.setProperty('--sidebar-width', sidebarWidth);
     
     // Update data attribute for any elements that need to respond to sidebar state
     document.querySelectorAll('[data-sidebar-expanded]').forEach(el => {
-      el.setAttribute('data-sidebar-expanded', (!collapsed).toString());
+      el.setAttribute('data-sidebar-expanded', (!isCollapsed).toString());
     });
   };
 
@@ -85,6 +123,13 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
     document.querySelectorAll('[data-sidebar-expanded]').forEach(el => {
       el.setAttribute('data-sidebar-expanded', isExpanded.toString());
     });
+    
+    // Clean up timeout on unmount
+    return () => {
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+      }
+    };
   }, [isMobile, defaultCollapsed]);
 
   return (
@@ -92,6 +137,8 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
       className={`sidebar fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out ${
         collapsed ? 'w-[72px]' : 'w-64'
       }`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="flex h-full flex-col">
         {/* Sidebar header */}
@@ -99,14 +146,14 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
           {!collapsed && (
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">CT</span>
+                <span className="text-white font-bold text-sm">CB</span>
               </div>
-              <span className="font-bold text-lg">CopyTrade</span>
+              <span className="font-bold text-lg">CryptoBroker</span>
             </div>
           )}
           {collapsed && (
             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 flex items-center justify-center mx-auto">
-              <span className="text-white font-bold text-sm">CT</span>
+              <span className="text-white font-bold text-sm">CB</span>
             </div>
           )}
         </div>
@@ -115,8 +162,7 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
         <div className="flex-1 overflow-y-auto py-4 px-3">
           <nav className="space-y-1">
             {navigationItems.map((item) => {
-              const isActive = location.pathname === item.path || 
-                              (item.path.includes('#') && location.pathname + location.hash === item.path);
+              const isActive = location.pathname === item.path;
               return (
                 <Link
                   key={item.name}
@@ -135,6 +181,11 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
               );
             })}
           </nav>
+        </div>
+
+        {/* Theme toggle */}
+        <div className={`flex justify-${collapsed ? 'center' : 'start'} px-4 py-2`}>
+          <ThemeToggle variant="ghost" />
         </div>
 
         {/* Sidebar footer */}

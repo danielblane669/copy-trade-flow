@@ -8,9 +8,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from '@/components/ui/button';
-import { Bitcoin, Coins, Building, DollarSign } from 'lucide-react';
+import { Bitcoin, Coins, Building } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -112,7 +111,8 @@ const Withdraw = () => {
         transaction_type: 'withdrawal',
         amount: parseFloat(values.amount),
         status: 'pending', // Pending until admin approves
-        user_id: user?.id
+        user_id: user?.id,
+        transaction_details: `${values.cryptocurrency.toUpperCase()} withdrawal to ${values.walletAddress.substring(0, 8)}...`
       });
       
       if (error) throw error;
@@ -149,7 +149,8 @@ const Withdraw = () => {
         transaction_type: 'withdrawal',
         amount: parseFloat(values.amount),
         status: 'pending', // Pending until admin approves
-        user_id: user?.id
+        user_id: user?.id,
+        transaction_details: `Bank withdrawal to ${values.bankName} - ${values.accountName}`
       });
       
       if (error) throw error;

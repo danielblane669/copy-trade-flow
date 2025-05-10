@@ -1,49 +1,65 @@
 
 import React from 'react';
-import { CircleCheck, BarChart, TrendingUp, CircleDollarSign } from 'lucide-react';
+import { ShieldCheck, TrendingUp, RefreshCw, Clock, CreditCard, Wallet } from 'lucide-react';
 
 const features = [
   {
-    icon: <CircleCheck className="h-8 w-8 text-primary" />,
-    title: "One-Click Copy Trading",
-    description: "Connect to top traders with one click and automatically copy their trades with your desired investment allocation."
+    title: 'Secure Trading Environment',
+    description: 'Enterprise-grade security measures to protect your assets and personal information.',
+    icon: <ShieldCheck className="h-10 w-10 text-primary" />
   },
   {
-    icon: <BarChart className="h-8 w-8 text-primary" />,
-    title: "Real-Time Performance Tracking",
-    description: "Monitor your portfolio and see how your copied traders are performing with detailed analytics and reports."
+    title: 'Advanced Trading Tools',
+    description: 'Real-time charts, technical indicators, and market analysis tools.',
+    icon: <TrendingUp className="h-10 w-10 text-primary" />
   },
   {
-    icon: <TrendingUp className="h-8 w-8 text-primary" />,
-    title: "Risk Management Tools",
-    description: "Set stop-losses, take-profits, and maximum investment amounts to protect your capital and manage risk."
+    title: 'Multiple Cryptocurrencies',
+    description: 'Trade Bitcoin, Ethereum, XRP, Litecoin and many more cryptocurrencies.',
+    icon: <RefreshCw className="h-10 w-10 text-primary" />
   },
   {
-    icon: <CircleDollarSign className="h-8 w-8 text-primary" />,
-    title: "Multiple Exchange Support",
-    description: "Connect to major crypto exchanges like Binance, Coinbase, and Kraken to copy trades across platforms."
+    title: '24/7 Trading',
+    description: 'Markets never close - trade cryptocurrencies whenever you want.',
+    icon: <Clock className="h-10 w-10 text-primary" />
+  },
+  {
+    title: 'Multiple Payment Methods',
+    description: 'Deposit and withdraw using various cryptocurrencies and bank transfers.',
+    icon: <CreditCard className="h-10 w-10 text-primary" />
+  },
+  {
+    title: 'User-friendly Wallet',
+    description: 'Manage your assets easily with our intuitive digital wallet.',
+    icon: <Wallet className="h-10 w-10 text-primary" />
   }
 ];
 
 const FeaturesSection = () => {
   return (
-    <section id="features" className="py-20">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold mb-4">Designed for traders of all levels</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Our platform makes it easy for beginners to follow experts while providing advanced tools for experienced traders.
-          </p>
+    <section id="features" className="py-20 bg-background">
+      <div className="container px-4 md:px-6">
+        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          <div className="space-y-2">
+            <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">
+              Features
+            </div>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              Everything You Need to Trade Crypto
+            </h2>
+            <p className="max-w-[900px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+              Our platform provides all the tools and features you need to trade cryptocurrencies confidently.
+            </p>
+          </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 pt-12">
           {features.map((feature, index) => (
-            <div key={index} className="bg-card rounded-xl p-6 border border-border card-hover">
-              <div className="mb-4">
-                {feature.icon}
-              </div>
-              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-              <p className="text-muted-foreground">{feature.description}</p>
+            <div key={index} className="flex flex-col items-center space-y-4 rounded-lg border p-6 shadow-sm transition-all hover:shadow-md">
+              {feature.icon}
+              <h3 className="text-xl font-bold">{feature.title}</h3>
+              <p className="text-center text-gray-500 dark:text-gray-400">
+                {feature.description}
+              </p>
             </div>
           ))}
         </div>

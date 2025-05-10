@@ -71,15 +71,30 @@ const Deposit = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoadingSubmit(true);
     try {
-      // Add to transaction history
+      // Get the filename from the FileList
+      const fileName = values.receiptImage[0]?.name || 'unknown-file';
+      
+      // Add to transaction history with detailed transaction info
       const { error } = await supabase.from('user_transactions').insert({
         transaction_type: 'deposit',
         amount: parseFloat(values.amount),
         status: 'pending', // Pending until admin approves
-        user_id: user?.id
+        user_id: user?.id,
+        transaction_details: `${values.cryptocurrency.toUpperCase()} deposit - ${fileName}`
       });
       
       if (error) throw error;
+      
+      // Update user portfolio deposits total
+      const { error: portfolioError } = await supabase.rpc('update_user_portfolio_deposits', {
+        user_id_param: user?.id,
+        deposit_amount: parseFloat(values.amount)
+      });
+      
+      if (portfolioError) {
+        console.error("Failed to update portfolio:", portfolioError);
+        // Continue anyway as the transaction was recorded
+      }
       
       toast({
         title: "Deposit request submitted",

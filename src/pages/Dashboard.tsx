@@ -1,9 +1,8 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import Header from '@/components/dashboard/Header';
 import StatCard from '@/components/dashboard/StatCard';
-import { Button } from '@/components/ui/button';
 import { Wallet, TrendingUp, Gift, ArrowDownToLine } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
@@ -43,16 +42,6 @@ const Dashboard = () => {
     },
     enabled: !!user?.id,
   });
-  
-  // Add a scroll to chart functionality for the Markets link in sidebar
-  useEffect(() => {
-    if (window.location.hash === '#trading-chart') {
-      const element = document.getElementById('trading-chart-section');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  }, []);
   
   return (
     <DashboardLayout>
@@ -98,17 +87,11 @@ const Dashboard = () => {
       </div>
       
       {/* Trading Activity Chart */}
-      <div id="trading-chart-section" className="bg-card rounded-xl p-4 md:p-6 border border-border mb-6 md:mb-8">
+      <div className="bg-card rounded-xl p-4 md:p-6 border border-border mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-4 md:mb-6">
           <div>
             <h2 className="text-base md:text-lg font-semibold">Trading Activity</h2>
             <p className="text-xs md:text-sm text-muted-foreground">Live cryptocurrency market data</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm">BTC/USD</Button>
-            <Button variant="outline" size="sm">ETH/USD</Button>
-            <Button className="bg-primary text-primary-foreground" size="sm">XRP/USD</Button>
-            <Button variant="outline" size="sm">SOL/USD</Button>
           </div>
         </div>
         
