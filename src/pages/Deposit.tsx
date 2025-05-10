@@ -254,7 +254,7 @@ const Deposit = () => {
                           </label>
                         </div>
                         
-                        {value && value.length > 0 && (
+                        {value instanceof FileList && value.length > 0 && (
                           <p className="text-xs text-muted-foreground">
                             Selected file: {value[0].name}
                           </p>
