@@ -1,46 +1,58 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import Header from '@/components/dashboard/Header';
 import StatCard from '@/components/dashboard/StatCard';
-import TraderCard from '@/components/dashboard/TraderCard';
 import { Button } from '@/components/ui/button';
-import { BarChart, TrendingUp, CircleDollarSign, CircleUser } from 'lucide-react';
+import { Wallet, TrendingUp, Gift, ArrowDownToLine } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-
-const traders = [
-  {
-    name: "Alex Thompson",
-    avatar: "AT",
-    profit: "+287%",
-    followers: "7.2k",
-    strategy: "Swing Trading",
-    description: "Focuses on mid-term momentum trading with technical analysis.",
-    following: true
-  },
-  {
-    name: "Sarah Chen",
-    avatar: "SC",
-    profit: "+156%",
-    followers: "5.9k",
-    strategy: "Position Trading",
-    description: "Long-term holder with fundamental analysis-based entries.",
-    following: false
-  },
-  {
-    name: "Michael Rodriguez",
-    avatar: "MR",
-    profit: "+312%",
-    followers: "9.1k",
-    strategy: "Day Trading",
-    description: "Quick scalping strategies with high win rates on major pairs.",
-    following: true
-  }
-];
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import TradingViewChart from '@/components/dashboard/TradingViewChart';
+import TransactionHistory from '@/components/dashboard/TransactionHistory';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const firstName = user?.user_metadata?.first_name || 'User';
+  
+  // Fetch user portfolio data
+  const { data: portfolio, isLoading } = useQuery({
+    queryKey: ['portfolio'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_portfolios')
+        .select('*')
+        .single();
+      
+      if (error) {
+        if (error.code === 'PGRST116') { // No rows returned for single row fetch
+          // Create a new portfolio for the user if it doesn't exist
+          const { data: newPortfolio, error: createError } = await supabase
+            .from('user_portfolios')
+            .insert({ user_id: user?.id })
+            .select('*')
+            .single();
+            
+          if (createError) throw createError;
+          return newPortfolio;
+        }
+        throw error;
+      }
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+  
+  // Add a scroll to chart functionality for the Markets link in sidebar
+  useEffect(() => {
+    if (window.location.hash === '#trading-chart') {
+      const element = document.getElementById('trading-chart-section');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, []);
   
   return (
     <DashboardLayout>
@@ -51,109 +63,69 @@ const Dashboard = () => {
       
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-        <StatCard
-          title="Portfolio Value"
-          value="$12,680.54"
-          change="+15.3%"
-          changeType="positive"
-          icon={<CircleDollarSign className="h-5 w-5" />}
-        />
-        <StatCard
-          title="Active Traders"
-          value="5"
-          change="+2 this week"
-          changeType="positive"
-          icon={<CircleUser className="h-5 w-5" />}
-        />
-        <StatCard
-          title="Total Profit"
-          value="$1,245.23"
-          change="+8.1%"
-          changeType="positive"
-          icon={<TrendingUp className="h-5 w-5" />}
-        />
-        <StatCard
-          title="Win Rate"
-          value="68%"
-          change="-2.3%"
-          changeType="negative"
-          icon={<BarChart className="h-5 w-5" />}
-        />
+        {isLoading ? (
+          <>
+            <Skeleton className="h-[120px] w-full" />
+            <Skeleton className="h-[120px] w-full" />
+            <Skeleton className="h-[120px] w-full" />
+            <Skeleton className="h-[120px] w-full" />
+          </>
+        ) : (
+          <>
+            <StatCard
+              title="Portfolio Value"
+              value={`$${Number(portfolio?.portfolio_value || 20).toFixed(2)}`}
+              icon={<Wallet className="h-5 w-5" />}
+            />
+            <StatCard
+              title="Total Profit"
+              value={`$${Number(portfolio?.total_profit || 0).toFixed(2)}`}
+              changeType={Number(portfolio?.total_profit) >= 0 ? "positive" : "negative"}
+              icon={<TrendingUp className="h-5 w-5" />}
+            />
+            <StatCard
+              title="Bonus"
+              value={`$${Number(portfolio?.bonus || 20).toFixed(2)}`}
+              icon={<Gift className="h-5 w-5" />}
+            />
+            <StatCard
+              title="Deposits"
+              value={`$${Number(portfolio?.deposits || 0).toFixed(2)}`}
+              icon={<ArrowDownToLine className="h-5 w-5" />}
+            />
+          </>
+        )}
       </div>
       
       {/* Trading Activity Chart */}
-      <div className="bg-card rounded-xl p-4 md:p-6 border border-border mb-6 md:mb-8">
+      <div id="trading-chart-section" className="bg-card rounded-xl p-4 md:p-6 border border-border mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-4 md:mb-6">
           <div>
             <h2 className="text-base md:text-lg font-semibold">Trading Activity</h2>
-            <p className="text-xs md:text-sm text-muted-foreground">Your trading performance over the last 30 days</p>
+            <p className="text-xs md:text-sm text-muted-foreground">Live cryptocurrency market data</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm">Day</Button>
-            <Button variant="outline" size="sm">Week</Button>
-            <Button className="bg-primary text-primary-foreground" size="sm">Month</Button>
-            <Button variant="outline" size="sm">Year</Button>
+            <Button variant="outline" size="sm">BTC/USD</Button>
+            <Button variant="outline" size="sm">ETH/USD</Button>
+            <Button className="bg-primary text-primary-foreground" size="sm">XRP/USD</Button>
+            <Button variant="outline" size="sm">SOL/USD</Button>
           </div>
         </div>
         
-        <div className="h-[200px] md:h-[300px] flex items-center justify-center bg-muted/50 rounded-lg">
-          <p className="text-muted-foreground text-sm">Chart will be implemented when backend is connected</p>
-        </div>
+        <TradingViewChart height={400} />
       </div>
       
-      {/* Followed Traders */}
+      {/* Transaction History */}
       <div className="mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 mb-4 md:mb-6">
           <div>
-            <h2 className="text-base md:text-lg font-semibold">Traders You're Following</h2>
-            <p className="text-xs md:text-sm text-muted-foreground">Performance of traders you're currently copying</p>
+            <h2 className="text-base md:text-lg font-semibold">Transaction History</h2>
+            <p className="text-xs md:text-sm text-muted-foreground">Your recent deposits, withdrawals, and bonuses</p>
           </div>
-          <Button variant="outline" size="sm">View All</Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {traders.map((trader, index) => (
-            trader.following && (
-              <TraderCard
-                key={index}
-                name={trader.name}
-                avatar={trader.avatar}
-                profit={trader.profit}
-                followers={trader.followers}
-                strategy={trader.strategy}
-                description={trader.description}
-                following={trader.following}
-              />
-            )
-          ))}
-        </div>
-      </div>
-      
-      {/* Recommended Traders */}
-      <div>
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 mb-4 md:mb-6">
-          <div>
-            <h2 className="text-base md:text-lg font-semibold">Recommended Traders</h2>
-            <p className="text-xs md:text-sm text-muted-foreground">Top traders you might want to follow</p>
-          </div>
-          <Button variant="outline" size="sm">Browse All</Button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {traders.map((trader, index) => (
-            !trader.following && (
-              <TraderCard
-                key={index}
-                name={trader.name}
-                avatar={trader.avatar}
-                profit={trader.profit}
-                followers={trader.followers}
-                strategy={trader.strategy}
-                description={trader.description}
-                following={trader.following}
-              />
-            )
-          ))}
+        <div className="bg-card rounded-xl border border-border overflow-hidden">
+          <TransactionHistory />
         </div>
       </div>
     </DashboardLayout>

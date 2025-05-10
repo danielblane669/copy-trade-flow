@@ -1,17 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   LayoutDashboard, 
   TrendingUp, 
-  CircleUser, 
-  CircleDollarSign, 
-  BarChart, 
   Settings,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Wallet,
+  ArrowDownToLine,
+  ArrowUpFromLine
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -24,10 +23,9 @@ type SidebarItem = {
 
 const navigationItems: SidebarItem[] = [
   { name: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard' },
-  { name: 'Markets', icon: <TrendingUp className="w-5 h-5" />, path: '/dashboard/markets' },
-  { name: 'Copy Traders', icon: <CircleUser className="w-5 h-5" />, path: '/dashboard/traders' },
-  { name: 'My Portfolio', icon: <CircleDollarSign className="w-5 h-5" />, path: '/dashboard/portfolio' },
-  { name: 'Analytics', icon: <BarChart className="w-5 h-5" />, path: '/dashboard/analytics' },
+  { name: 'Markets', icon: <TrendingUp className="w-5 h-5" />, path: '/dashboard#trading-chart' },
+  { name: 'Deposit', icon: <ArrowDownToLine className="w-5 h-5" />, path: '/dashboard/deposit' },
+  { name: 'Withdraw', icon: <ArrowUpFromLine className="w-5 h-5" />, path: '/dashboard/withdraw' },
   { name: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/dashboard/settings' },
 ];
 
@@ -115,7 +113,8 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
         <div className="flex-1 overflow-y-auto py-4 px-3">
           <nav className="space-y-1">
             {navigationItems.map((item) => {
-              const isActive = location.pathname === item.path;
+              const isActive = location.pathname === item.path || 
+                              (item.path.includes('#') && location.pathname + location.hash === item.path);
               return (
                 <Link
                   key={item.name}
