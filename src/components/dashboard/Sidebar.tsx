@@ -4,11 +4,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   LayoutDashboard, 
-  Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Wallet,
   ArrowDownToLine,
   ArrowUpFromLine,
   FileText
@@ -32,9 +30,10 @@ const navigationItems: SidebarItem[] = [
 
 interface SidebarProps {
   defaultCollapsed?: boolean;
+  onNavigate?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
+const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false, onNavigate }) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
   const location = useLocation();
@@ -110,6 +109,13 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
     });
   };
 
+  // Handle navigation click
+  const handleNavigation = () => {
+    if (onNavigate) {
+      onNavigate();
+    }
+  };
+
   // Update collapse state when screen size changes
   useEffect(() => {
     setCollapsed(isMobile);
@@ -172,6 +178,7 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false }) => {
                       ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                       : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
                   } ${collapsed ? 'justify-center' : 'justify-start'}`}
+                  onClick={handleNavigation}
                 >
                   <div className="flex items-center">
                     {item.icon}

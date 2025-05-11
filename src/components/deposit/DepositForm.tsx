@@ -17,16 +17,14 @@ import AmountInput from './AmountInput';
 import ReceiptUpload from './ReceiptUpload';
 import DepositInstructions from './DepositInstructions';
 
-// Define the correct form schema with proper types
+// Define the form schema with proper types
 const formSchema = z.object({
   cryptocurrency: z.string().min(1, { message: "Please select a cryptocurrency" }),
   amount: z.string().min(1, { message: "Amount is required" })
     .refine((val) => !isNaN(Number(val)), { message: "Amount must be a number" })
     .refine((val) => Number(val) >= 100, { message: "Minimum deposit amount is $100" }),
-  receiptImage: z.instanceof(FileList).refine(
-    (files) => files.length > 0, 
-    { message: "Proof of payment is required" }
-  ),
+  receiptImage: z.instanceof(FileList).optional()
+    .refine((files) => files && files.length > 0, { message: "Proof of payment is required" }),
 });
 
 // Define type for the form data
@@ -55,6 +53,11 @@ const DepositForm = () => {
   async function onSubmit(values: FormValues) {
     setLoadingSubmit(true);
     try {
+      // Check that receipt image is present
+      if (!values.receiptImage || values.receiptImage.length === 0) {
+        throw new Error("Receipt image is required");
+      }
+
       // Get the filename from the FileList
       const fileName = values.receiptImage[0]?.name || 'unknown-file';
       
@@ -126,7 +129,6 @@ const DepositForm = () => {
             />
             
             <ReceiptUpload
-              value={form.watch('receiptImage')}
               onChange={(files) => {
                 if (files) {
                   form.setValue('receiptImage', files);

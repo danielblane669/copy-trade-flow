@@ -51,7 +51,7 @@ const App = () => (
                 path="/signup" 
                 element={
                   <AuthRedirect>
-                    <Login />
+                    <Signup />
                   </AuthRedirect>
                 } 
               />
