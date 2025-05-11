@@ -23,7 +23,7 @@ const formSchema = z.object({
   amount: z.string().min(1, { message: "Amount is required" })
     .refine((val) => !isNaN(Number(val)), { message: "Amount must be a number" })
     .refine((val) => Number(val) >= 100, { message: "Minimum deposit amount is $100" }),
-  // Use z.any() for file input to avoid TypeScript errors
+  // Use z.any() for file input but ensure it's a FileList during validation
   receiptImage: z.any()
     .refine((files) => files && files.length > 0, { message: "Proof of payment is required" }),
 });
@@ -42,6 +42,8 @@ const DepositForm = () => {
     defaultValues: {
       cryptocurrency: "",
       amount: "",
+      // Initialize receiptImage as undefined to prevent type errors
+      receiptImage: undefined,
     },
   });
 
@@ -131,9 +133,11 @@ const DepositForm = () => {
             
             <ReceiptUpload
               onChange={(files) => {
-                form.setValue('receiptImage', files, { 
-                  shouldValidate: true 
-                });
+                if (files) {
+                  form.setValue('receiptImage', files, { 
+                    shouldValidate: true 
+                  });
+                }
               }}
             />
             

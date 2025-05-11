@@ -9,6 +9,7 @@ type ReceiptUploadProps = {
 };
 
 const ReceiptUpload = ({ onChange }: ReceiptUploadProps) => {
+  // Create a function that passes the file directly
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.files);
   };
