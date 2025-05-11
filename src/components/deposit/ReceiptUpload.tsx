@@ -9,6 +9,10 @@ type ReceiptUploadProps = {
 };
 
 const ReceiptUpload = ({ onChange }: ReceiptUploadProps) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.files);
+  };
+
   return (
     <FormItem>
       <FormLabel>Proof of Payment</FormLabel>
@@ -20,11 +24,7 @@ const ReceiptUpload = ({ onChange }: ReceiptUploadProps) => {
               className="hidden"
               id="receipt-upload"
               accept="image/*"
-              onChange={(e) => {
-                if (e.target.files) {
-                  onChange(e.target.files);
-                }
-              }}
+              onChange={handleFileChange}
             />
             <label 
               htmlFor="receipt-upload"

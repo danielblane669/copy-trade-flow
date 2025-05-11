@@ -23,7 +23,8 @@ const formSchema = z.object({
   amount: z.string().min(1, { message: "Amount is required" })
     .refine((val) => !isNaN(Number(val)), { message: "Amount must be a number" })
     .refine((val) => Number(val) >= 100, { message: "Minimum deposit amount is $100" }),
-  receiptImage: z.instanceof(FileList).optional()
+  // Define receiptImage as any for now to avoid type issues with FileList
+  receiptImage: z.any()
     .refine((files) => files && files.length > 0, { message: "Proof of payment is required" }),
 });
 
@@ -130,9 +131,9 @@ const DepositForm = () => {
             
             <ReceiptUpload
               onChange={(files) => {
-                if (files) {
-                  form.setValue('receiptImage', files);
-                }
+                form.setValue('receiptImage', files, { 
+                  shouldValidate: true 
+                });
               }}
             />
             
