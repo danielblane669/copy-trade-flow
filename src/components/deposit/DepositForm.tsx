@@ -23,7 +23,7 @@ const formSchema = z.object({
   amount: z.string().min(1, { message: "Amount is required" })
     .refine((val) => !isNaN(Number(val)), { message: "Amount must be a number" })
     .refine((val) => Number(val) >= 100, { message: "Minimum deposit amount is $100" }),
-  // Define receiptImage as any for now to avoid type issues with FileList
+  // Use z.any() for file input to avoid TypeScript errors
   receiptImage: z.any()
     .refine((files) => files && files.length > 0, { message: "Proof of payment is required" }),
 });
