@@ -14,7 +14,6 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 import Transactions from "./pages/Transactions";
 import NotFound from "./pages/NotFound";
@@ -62,14 +61,6 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/dashboard/deposit" 
-                element={
-                  <ProtectedRoute>
-                    <Deposit />
                   </ProtectedRoute>
                 } 
               />
