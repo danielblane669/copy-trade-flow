@@ -9,7 +9,6 @@ const DepositInstructions = () => {
         <li>Select your preferred cryptocurrency.</li>
         <li>Copy the generated wallet address.</li>
         <li>Send funds from your personal wallet to the copied address.</li>
-        <li>Upload a screenshot of your transaction as proof of payment.</li>
         <li>Enter the USD amount you've deposited.</li>
         <li>Submit your deposit request.</li>
       </ol>

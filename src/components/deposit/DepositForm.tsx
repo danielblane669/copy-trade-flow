@@ -14,7 +14,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import CryptoSelector from './CryptoSelector';
 import WalletAddress from './WalletAddress';
 import AmountInput from './AmountInput';
-import ReceiptUpload from './ReceiptUpload';
 import DepositInstructions from './DepositInstructions';
 
 // Define the form schema with proper types
@@ -23,9 +22,6 @@ const formSchema = z.object({
   amount: z.string().min(1, { message: "Amount is required" })
     .refine((val) => !isNaN(Number(val)), { message: "Amount must be a number" })
     .refine((val) => Number(val) >= 100, { message: "Minimum deposit amount is $100" }),
-  // Use z.any() for file input to handle FileList type
-  receiptImage: z.any()
-    .refine((files) => files && files.length > 0, { message: "Proof of payment is required" }),
 });
 
 // Define type for the form data
@@ -42,8 +38,6 @@ const DepositForm = () => {
     defaultValues: {
       cryptocurrency: "",
       amount: "",
-      // Initialize receiptImage as undefined to prevent type errors
-      receiptImage: undefined,
     },
   });
 
@@ -56,21 +50,13 @@ const DepositForm = () => {
   async function onSubmit(values: FormValues) {
     setLoadingSubmit(true);
     try {
-      // Check that receipt image is present
-      if (!values.receiptImage || values.receiptImage.length === 0) {
-        throw new Error("Receipt image is required");
-      }
-
-      // Get the filename from the FileList
-      const fileName = values.receiptImage[0]?.name || 'unknown-file';
-      
       // Add to transaction history with detailed transaction info
       const { error } = await supabase.from('user_transactions').insert({
         transaction_type: 'deposit',
         amount: parseFloat(values.amount),
         status: 'pending', // Pending until admin approves
         user_id: user?.id,
-        transaction_details: `${values.cryptocurrency.toUpperCase()} deposit - ${fileName}`
+        transaction_details: `${values.cryptocurrency.toUpperCase()} deposit`
       });
       
       if (error) throw error;
@@ -129,14 +115,6 @@ const DepositForm = () => {
             <AmountInput
               value={form.watch('amount')}
               onChange={(e) => form.setValue('amount', e.target.value)}
-            />
-            
-            <ReceiptUpload
-              onChange={(files) => {
-                if (files) {
-                  form.setValue('receiptImage', files);
-                }
-              }}
             />
             
             <DepositInstructions />
