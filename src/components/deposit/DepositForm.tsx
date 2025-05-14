@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
@@ -7,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Bitcoin, FileUp, CircleDollarSign, Coins } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Bitcoin, CircleDollarSign, Coins, FileUp } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 import { generateRandomAddress } from '@/lib/crypto';
@@ -20,8 +21,15 @@ const depositFormSchema = z.object({
   cryptoType: z.enum(['bitcoin', 'ethereum', 'litecoin', 'xrp'], {
     required_error: "Please select a cryptocurrency type",
   }),
+  amount: z.string()
+    .min(1, { message: "Amount is required" })
+    .refine((val) => !isNaN(Number(val)), { message: "Amount must be a number" })
+    .refine((val) => Number(val) >= 200, { message: "Minimum deposit amount is $200" }),
   walletAddress: z.string(),
-  receiptImage: z.any().optional(),
+  receiptImage: z.any()
+    .refine(files => files && files.length > 0, {
+      message: "Payment proof is required"
+    }),
 });
 
 type DepositFormValues = z.infer<typeof depositFormSchema>;
@@ -36,13 +44,13 @@ const CryptoIcons = {
 const DepositForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
-  const { toast } = useToast();
   const { user } = useAuth();
 
   const form = useForm<DepositFormValues>({
     resolver: zodResolver(depositFormSchema),
     defaultValues: {
       walletAddress: '',
+      amount: '',
     },
   });
 
@@ -90,7 +98,7 @@ const DepositForm = () => {
         .from('user_transactions')
         .insert({
           user_id: user.id,
-          amount: 0, // Amount will be updated once deposit is verified
+          amount: parseFloat(data.amount),
           transaction_type: 'deposit',
           status: 'pending',
           transaction_details: JSON.stringify({
@@ -113,6 +121,7 @@ const DepositForm = () => {
       
       // Reset form
       form.reset();
+      setWalletAddress('');
     } catch (error) {
       toast({
         title: "Error submitting deposit",
@@ -185,6 +194,26 @@ const DepositForm = () => {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount (USD)</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
+                      <Input {...field} className="pl-7" placeholder="200" />
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    Minimum deposit amount is $200
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {walletAddress && (
               <FormField
                 control={form.control}
@@ -229,7 +258,7 @@ const DepositForm = () => {
               name="receiptImage"
               render={({ field: { onChange, value, ...rest } }) => (
                 <FormItem>
-                  <FormLabel>Proof of Payment (Optional)</FormLabel>
+                  <FormLabel>Proof of Payment <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
                     <FileUpload 
                       onChange={(files) => onChange(files)}
@@ -237,7 +266,7 @@ const DepositForm = () => {
                     />
                   </FormControl>
                   <FormDescription>
-                    Upload a screenshot or receipt of your transaction
+                    Upload a screenshot or receipt of your transaction (required)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -249,7 +278,7 @@ const DepositForm = () => {
             <Button 
               type="submit" 
               className="w-full"
-              disabled={isSubmitting || !form.getValues("cryptoType")}
+              disabled={isSubmitting || !form.getValues("cryptoType") || !form.formState.isValid}
             >
               {isSubmitting ? "Processing..." : "Submit Deposit Request"}
             </Button>

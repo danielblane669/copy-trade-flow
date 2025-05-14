@@ -16,6 +16,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     setShowMobileSidebar(!showMobileSidebar);
   };
 
+  const closeSidebar = () => {
+    if (isMobile) {
+      setShowMobileSidebar(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       {/* Mobile hamburger menu toggle */}
@@ -39,12 +45,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       }`}>
         <Sidebar 
           defaultCollapsed={!isMobile && false} 
-          onNavigate={() => isMobile && setShowMobileSidebar(false)} 
+          onNavigate={closeSidebar} 
         />
       </div>
       
       {/* Main content - adapts to sidebar state */}
       <div className="flex-grow w-full transition-all duration-300 ease-in-out ml-0 md:ml-[72px]" 
+           style={{ position: 'relative' }}
            data-sidebar-expanded="false">
         <div className="min-h-screen pb-20 overflow-y-auto">
           {/* Add padding on mobile for the hamburger icon */}
