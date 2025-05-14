@@ -34,9 +34,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       )}
       
       {/* Sidebar - only visible on desktop or when toggled on mobile */}
-      <div className={`z-40 transition-all duration-300 ${
+      <div className={`fixed z-40 transition-all duration-300 ${
         isMobile ? (showMobileSidebar ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
-      } ${isMobile ? 'absolute h-full' : ''}`}>
+      }`}>
         <Sidebar 
           defaultCollapsed={!isMobile && false} 
           onNavigate={() => isMobile && setShowMobileSidebar(false)} 
