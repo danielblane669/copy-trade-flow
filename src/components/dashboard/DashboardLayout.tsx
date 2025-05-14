@@ -24,7 +24,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Mobile hamburger menu toggle */}
+      {/* Mobile hamburger menu toggle - increased z-index */}
       {isMobile && (
         <button 
           onClick={toggleMobileSidebar}
@@ -40,14 +40,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       )}
       
       {/* Sidebar - only visible on desktop or when toggled on mobile */}
-      <div className={`fixed z-40 transition-all duration-300 ${
-        isMobile ? (showMobileSidebar ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
-      }`}>
-        <Sidebar 
-          defaultCollapsed={!isMobile && false} 
-          onNavigate={closeSidebar} 
-        />
-      </div>
+      {(isMobile && showMobileSidebar) || !isMobile ? (
+        <div className={`fixed z-40 transition-all duration-300 ${
+          isMobile ? (showMobileSidebar ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
+        }`}>
+          <Sidebar 
+            defaultCollapsed={!isMobile && false} 
+            onNavigate={closeSidebar} 
+          />
+        </div>
+      ) : null}
       
       {/* Main content - adapts to sidebar state */}
       <div className="flex-grow w-full transition-all duration-300 ease-in-out ml-0 md:ml-[72px]" 

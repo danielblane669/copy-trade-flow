@@ -140,7 +140,7 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false, onNavigate 
 
   return (
     <div 
-      className={`sidebar fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out ${
+      className={`sidebar h-screen border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out ${
         collapsed ? 'w-[72px]' : 'w-64'
       }`}
       onMouseEnter={handleMouseEnter}
