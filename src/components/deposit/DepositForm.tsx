@@ -8,13 +8,72 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Bitcoin, CircleDollarSign, Coins, FileUp } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { Bitcoin, EtherneumIcon, Coins, FileUp } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 import { generateRandomAddress } from '@/lib/crypto';
 import DepositInstructions from './DepositInstructions';
 import FileUpload from './FileUpload';
+
+// Define custom Ethereum icon component
+const Ethereum = (props) => (
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 2l-8 14h16l-8-14z" />
+    <path d="M4 16l8-5.2 8 5.2" />
+    <path d="M4 16v4l8-6 8 6v-4" />
+  </svg>
+);
+
+// Define custom Litecoin icon component
+const Litecoin = (props) => (
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 2a10 10 0 1 0 0 20 10 10 0 1 0 0-20z" />
+    <path d="M15.6 14.2H9.2l-1 3.6h9.6l-0.8 2.4H6.8L9.2 8.8h3.2l-1.6 5.4h4l0.8-2.4h-4.4l0.4-1.8h6.4l-2.4 4.2z" />
+  </svg>
+);
+
+// Define custom XRP icon component
+const Xrp = (props) => (
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+    <path d="M16 8l-4 4-4-4" />
+    <path d="M8 16l4-4 4 4" />
+  </svg>
+);
 
 // Define the form schema with Zod
 const depositFormSchema = z.object({
@@ -36,9 +95,9 @@ type DepositFormValues = z.infer<typeof depositFormSchema>;
 
 const CryptoIcons = {
   bitcoin: <Bitcoin className="h-4 w-4" />,
-  ethereum: <CircleDollarSign className="h-4 w-4" />,
-  litecoin: <Coins className="h-4 w-4" />,
-  xrp: <FileUp className="h-4 w-4" />,
+  ethereum: <Ethereum className="h-4 w-4" />,
+  litecoin: <Litecoin className="h-4 w-4" />,
+  xrp: <Xrp className="h-4 w-4" />,
 };
 
 const DepositForm = () => {
@@ -171,19 +230,19 @@ const DepositForm = () => {
                       </SelectItem>
                       <SelectItem value="ethereum">
                         <div className="flex items-center gap-2">
-                          <CircleDollarSign className="h-4 w-4" />
+                          <Ethereum className="h-4 w-4" />
                           <span>Ethereum</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="litecoin">
                         <div className="flex items-center gap-2">
-                          <Coins className="h-4 w-4" />
+                          <Litecoin className="h-4 w-4" />
                           <span>Litecoin</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="xrp">
                         <div className="flex items-center gap-2">
-                          <FileUp className="h-4 w-4" />
+                          <Xrp className="h-4 w-4" />
                           <span>XRP</span>
                         </div>
                       </SelectItem>
