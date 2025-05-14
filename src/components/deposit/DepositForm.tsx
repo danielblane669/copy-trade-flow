@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
@@ -8,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Bitcoin, Ethereum, FileUp, Litecoin } from 'lucide-react';
+import { Bitcoin, FileUp, CircleDollarSign, Coins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,9 +28,9 @@ type DepositFormValues = z.infer<typeof depositFormSchema>;
 
 const CryptoIcons = {
   bitcoin: <Bitcoin className="h-4 w-4" />,
-  ethereum: <Ethereum className="h-4 w-4" />,
-  litecoin: <Litecoin className="h-4 w-4" />,
-  xrp: <FileUp className="h-4 w-4" />, // Using FileUp as a placeholder for XRP
+  ethereum: <CircleDollarSign className="h-4 w-4" />,
+  litecoin: <Coins className="h-4 w-4" />,
+  xrp: <FileUp className="h-4 w-4" />,
 };
 
 const DepositForm = () => {
@@ -163,13 +162,13 @@ const DepositForm = () => {
                       </SelectItem>
                       <SelectItem value="ethereum">
                         <div className="flex items-center gap-2">
-                          <Ethereum className="h-4 w-4" />
+                          <CircleDollarSign className="h-4 w-4" />
                           <span>Ethereum</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="litecoin">
                         <div className="flex items-center gap-2">
-                          <Litecoin className="h-4 w-4" />
+                          <Coins className="h-4 w-4" />
                           <span>Litecoin</span>
                         </div>
                       </SelectItem>
