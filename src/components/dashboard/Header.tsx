@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Bell, Search } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface HeaderProps {
   title: string;
@@ -9,6 +10,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
+  const isMobile = useIsMobile();
+  
   return (
     <header className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:justify-between md:items-center mb-6 pb-4 md:pb-6 border-b border-border">
       <div>
@@ -16,7 +19,7 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
         {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
       </div>
       
-      <div className="flex items-center space-x-2 w-full md:w-auto">
+      <div className={`flex items-center space-x-2 w-full md:w-auto ${isMobile ? 'justify-between' : ''}`}>
         <div className="relative flex-grow md:flex-grow-0 md:w-64">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <input 

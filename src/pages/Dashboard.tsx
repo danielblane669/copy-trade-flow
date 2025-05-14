@@ -1,4 +1,3 @@
-
 import React from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import Header from '@/components/dashboard/Header';
@@ -10,10 +9,12 @@ import { supabase } from '@/integrations/supabase/client';
 import TradingViewChart from '@/components/dashboard/TradingViewChart';
 import TransactionHistory from '@/components/dashboard/TransactionHistory';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const firstName = user?.user_metadata?.first_name || 'User';
+  const isMobile = useIsMobile();
   
   // Fetch user portfolio data
   const { data: portfolio, isLoading } = useQuery({
@@ -95,7 +96,7 @@ const Dashboard = () => {
           </div>
         </div>
         
-        <TradingViewChart height={400} />
+        <TradingViewChart height={isMobile ? 300 : 400} />
       </div>
       
       {/* Transaction History */}

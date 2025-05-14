@@ -1,8 +1,9 @@
 
 import React, { ReactNode, useState } from 'react';
 import Sidebar from './Sidebar';
+import MobileMenu from './MobileMenu';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -10,66 +11,61 @@ interface DashboardLayoutProps {
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  const toggleMobileSidebar = () => {
-    setShowMobileSidebar(!showMobileSidebar);
+  const toggleMobileMenu = () => {
+    setShowMobileMenu(!showMobileMenu);
   };
 
-  const closeSidebar = () => {
-    if (isMobile) {
-      setShowMobileSidebar(false);
-    }
+  const closeMobileMenu = () => {
+    setShowMobileMenu(false);
   };
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Mobile hamburger menu toggle - increased z-index */}
-      {isMobile && (
-        <button 
-          onClick={toggleMobileSidebar}
-          className="fixed z-50 top-4 left-4 p-2 rounded-md bg-primary/10 text-primary"
-          aria-label={showMobileSidebar ? "Close sidebar" : "Open sidebar"}
-        >
-          {showMobileSidebar ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </button>
+      {/* Desktop Sidebar - hidden on mobile */}
+      {!isMobile && (
+        <div className="fixed z-40 transition-all duration-300">
+          <Sidebar defaultCollapsed={false} />
+        </div>
       )}
       
-      {/* Sidebar - only visible on desktop or when toggled on mobile */}
-      {(isMobile && showMobileSidebar) || !isMobile ? (
-        <div className={`fixed z-40 transition-all duration-300 ${
-          isMobile ? (showMobileSidebar ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
-        }`}>
-          <Sidebar 
-            defaultCollapsed={!isMobile && false} 
-            onNavigate={closeSidebar} 
-          />
-        </div>
-      ) : null}
-      
-      {/* Main content - adapts to sidebar state */}
-      <div className="flex-grow w-full transition-all duration-300 ease-in-out ml-0 md:ml-[72px]" 
-           style={{ position: 'relative' }}
-           data-sidebar-expanded="false">
+      {/* Main content */}
+      <div 
+        className="flex-grow w-full transition-all duration-300 ease-in-out ml-0 md:ml-[72px]" 
+        style={{ position: 'relative' }}
+        data-sidebar-expanded="false"
+      >
+        {/* Mobile menu trigger button - aligned with header */}
+        {isMobile && (
+          <div className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border">
+            <div className="flex justify-between items-center h-16 px-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">CB</span>
+                </div>
+                <span className="font-bold text-lg">CryptoBroker</span>
+              </div>
+              <button 
+                onClick={toggleMobileMenu}
+                className="p-2 rounded-md hover:bg-primary/10 text-foreground"
+                aria-label="Open menu"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
+            </div>
+          </div>
+        )}
+        
         <div className="min-h-screen pb-20 overflow-y-auto">
-          {/* Add padding on mobile for the hamburger icon */}
-          <div className={`py-6 px-4 ${isMobile ? 'pt-16' : ''}`}>
+          <div className={`py-6 px-4 ${isMobile ? '' : 'pt-6'}`}>
             {children}
           </div>
         </div>
       </div>
       
-      {/* Overlay to close sidebar on mobile */}
-      {isMobile && showMobileSidebar && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30"
-          onClick={() => setShowMobileSidebar(false)}
-        />
-      )}
+      {/* Mobile menu */}
+      {isMobile && showMobileMenu && <MobileMenu onClose={closeMobileMenu} />}
     </div>
   );
 };
