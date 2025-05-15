@@ -29,7 +29,9 @@ const NavBar = () => {
 
   const getUserDisplayName = () => {
     if (user?.user_metadata?.first_name) {
-      return `${user.user_metadata.first_name}`;
+      const firstName = user.user_metadata.first_name || '';
+      const lastName = user.user_metadata.last_name || '';
+      return `${firstName} ${lastName}`.trim();
     }
     return user?.email?.split('@')[0] || 'User';
   };

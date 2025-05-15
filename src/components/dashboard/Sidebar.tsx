@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,6 +13,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type SidebarItem = {
   name: string;
@@ -58,6 +58,15 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false, onNavigate 
 
   const initials = getInitials(fullName);
 
+  // Function to handle logging out
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   // Function to handle mouse enter - expand sidebar
   const handleMouseEnter = () => {
     if (isMobile) return; // Don't auto-expand on mobile
@@ -70,7 +79,11 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false, onNavigate 
     
     if (collapsed) {
       setCollapsed(false);
-      updateSidebarWidth(false);
+      const sidebarWidth = '256px';
+      document.documentElement.style.setProperty('--sidebar-width', sidebarWidth);
+      document.querySelectorAll('[data-sidebar-expanded]').forEach(el => {
+        el.setAttribute('data-sidebar-expanded', 'true');
+      });
     }
   };
   
@@ -86,7 +99,11 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false, onNavigate 
     // Set a new timeout to collapse the sidebar after a short delay
     const timeout = setTimeout(() => {
       setCollapsed(true);
-      updateSidebarWidth(true);
+      const sidebarWidth = '72px';
+      document.documentElement.style.setProperty('--sidebar-width', sidebarWidth);
+      document.querySelectorAll('[data-sidebar-expanded]').forEach(el => {
+        el.setAttribute('data-sidebar-expanded', 'false');
+      });
     }, 300); // 300ms delay before collapsing
     
     setHoverTimeout(timeout);
@@ -95,7 +112,11 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false, onNavigate 
   const toggleCollapse = () => {
     const newCollapsed = !collapsed;
     setCollapsed(newCollapsed);
-    updateSidebarWidth(newCollapsed);
+    const sidebarWidth = newCollapsed ? '72px' : '256px';
+    document.documentElement.style.setProperty('--sidebar-width', sidebarWidth);
+    document.querySelectorAll('[data-sidebar-expanded]').forEach(el => {
+      el.setAttribute('data-sidebar-expanded', (!newCollapsed).toString());
+    });
   };
   
   const updateSidebarWidth = (isCollapsed: boolean) => {
@@ -192,7 +213,18 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false, onNavigate 
 
         {/* Theme toggle */}
         <div className={`flex justify-${collapsed ? 'center' : 'start'} px-4 py-2`}>
-          <ThemeToggle variant="ghost" />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <ThemeToggle variant="ghost" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Toggle light/dark mode</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         {/* Sidebar footer */}
@@ -224,7 +256,7 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false, onNavigate 
           <div className={`mt-3 flex ${collapsed ? 'justify-center' : 'justify-between'}`}>
             {!collapsed && (
               <button 
-                onClick={logout}
+                onClick={handleLogout}
                 className="flex items-center text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground"
               >
                 <LogOut className="w-4 h-4 mr-2" />
@@ -232,7 +264,15 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false, onNavigate 
               </button>
             )}
             <button 
-              onClick={toggleCollapse} 
+              onClick={() => {
+                const newCollapsed = !collapsed;
+                setCollapsed(newCollapsed);
+                const sidebarWidth = newCollapsed ? '72px' : '256px';
+                document.documentElement.style.setProperty('--sidebar-width', sidebarWidth);
+                document.querySelectorAll('[data-sidebar-expanded]').forEach(el => {
+                  el.setAttribute('data-sidebar-expanded', (!newCollapsed).toString());
+                });
+              }} 
               className="flex items-center text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground"
             >
               {collapsed ? (

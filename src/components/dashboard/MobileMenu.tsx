@@ -48,7 +48,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ onClose }) => {
     try {
       await logout();
       onClose();
-      navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
     }
