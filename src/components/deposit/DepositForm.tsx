@@ -155,7 +155,7 @@ const DepositForm = () => {
 
       // Insert into deposit_requests table first
       const { error: depositRequestError } = await supabase
-        .from('deposit_requests')
+        .from('deposit_requests' as any)
         .insert({
           user_id: user.id,
           amount: parseFloat(data.amount),

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -121,7 +120,7 @@ const Withdraw = () => {
     try {
       // Add to withdrawal_requests table
       const { error: withdrawalRequestError } = await supabase
-        .from('withdrawal_requests')
+        .from('withdrawal_requests' as any)
         .insert({
           user_id: user.id,
           amount: parseFloat(values.amount),
@@ -183,7 +182,7 @@ const Withdraw = () => {
     try {
       // Add to withdrawal_requests table
       const { error: withdrawalRequestError } = await supabase
-        .from('withdrawal_requests')
+        .from('withdrawal_requests' as any)
         .insert({
           user_id: user.id,
           amount: parseFloat(values.amount),

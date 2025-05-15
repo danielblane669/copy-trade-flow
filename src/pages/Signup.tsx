@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -120,14 +119,15 @@ const Signup = () => {
       const user = (await supabase.auth.getUser()).data.user;
       
       if (user) {
+        // Use type assertion to work around TypeScript errors
         const { error } = await supabase
-          .from('profiles')
+          .from('profiles' as any)
           .update({
             country: values.country,
             phone_number: values.phoneNumber,
             country_code: values.countryCode,
             account_currency: values.accountCurrency
-          })
+          } as any)
           .eq('id', user.id);
 
         if (error) {
