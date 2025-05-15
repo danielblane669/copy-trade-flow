@@ -24,9 +24,9 @@ function App() {
   const queryClient = new QueryClient();
 
   return (
-    <NextThemesProvider attribute="class" defaultTheme="light" enableSystem>
+    <Router>
       <QueryClientProvider client={queryClient}>
-        <Router>
+        <NextThemesProvider attribute="class" defaultTheme="light" enableSystem>
           <AuthProvider>
             <Toaster />
             <Routes>
@@ -49,9 +49,9 @@ function App() {
             </Routes>
             <LiveChat />
           </AuthProvider>
-        </Router>
+        </NextThemesProvider>
       </QueryClientProvider>
-    </NextThemesProvider>
+    </Router>
   );
 }
 
