@@ -1,37 +1,29 @@
 
 import React from 'react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Control } from 'react-hook-form';
-import FileUpload from './FileUpload';
+import { useFormContext } from 'react-hook-form';
+import FileUpload, { FileUploadProps } from './FileUpload';
 
-interface FileUploadFieldProps {
-  control: Control<any>;
+interface FileUploadFieldProps extends Omit<FileUploadProps, 'value' | 'onChange'> {
   name: string;
   label: string;
-  userId: string;
-  maxSizeMB?: number;
-  acceptedFileTypes?: {
-    'image/jpeg': ['.jpg', '.jpeg'];
-    'image/png': ['.png'];
-    'application/pdf': ['.pdf'];
-  };
 }
 
 const FileUploadField: React.FC<FileUploadFieldProps> = ({
-  control,
   name,
   label,
-  userId,
-  maxSizeMB = 2,
-  acceptedFileTypes = {
-    'image/jpeg': ['.jpg', '.jpeg'],
-    'image/png': ['.png'],
-    'application/pdf': ['.pdf'],
-  },
+  maxSizeMB,
+  acceptedFileTypes
 }) => {
+  const form = useFormContext();
+  
+  if (!form) {
+    throw new Error('FileUploadField must be used within a Form component');
+  }
+  
   return (
     <FormField
-      control={control}
+      control={form.control}
       name={name}
       render={({ field }) => (
         <FormItem>
@@ -40,7 +32,6 @@ const FileUploadField: React.FC<FileUploadFieldProps> = ({
             <FileUpload
               value={field.value}
               onChange={field.onChange}
-              userId={userId}
               maxSizeMB={maxSizeMB}
               acceptedFileTypes={acceptedFileTypes}
             />

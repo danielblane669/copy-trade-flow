@@ -1,13 +1,22 @@
 
-import React, { useMemo } from 'react';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import React, { useState } from 'react';
+import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger 
+} from '@/components/ui/popover';
+import { 
+  Command, 
+  CommandEmpty, 
+  CommandGroup, 
+  CommandInput, 
+  CommandItem 
+} from '@/components/ui/command';
+import { Check, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Check, ChevronsUpDown, Search } from 'lucide-react';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 
-// Country data for dropdown
+// Country data with codes and dial codes
 const countries = [
   { code: "US", name: "United States", dial_code: "+1" },
   { code: "GB", name: "United Kingdom", dial_code: "+44" },
@@ -24,79 +33,63 @@ const countries = [
   { code: "NG", name: "Nigeria", dial_code: "+234" },
   { code: "GH", name: "Ghana", dial_code: "+233" },
   { code: "KE", name: "Kenya", dial_code: "+254" },
-  // Add more countries as needed
 ];
 
 interface CountryCodeSelectorProps {
-  control: any;
-  name: string;
-  onCountryChange?: (countryCode: string, dialCode: string) => void;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
 }
 
-const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({ 
-  control, 
-  name,
-  onCountryChange 
+const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
+  value,
+  onChange,
+  placeholder = "Code"
 }) => {
-  // Sort countries alphabetically for easier search
-  const sortedCountries = useMemo(() => 
-    [...countries].sort((a, b) => a.name.localeCompare(b.name)), 
-    []
-  );
-
+  const [open, setOpen] = useState(false);
+  
+  const selectedCountry = countries.find(country => country.dial_code === value);
+  
   return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className="w-1/3">
-          <FormLabel>Code</FormLabel>
-          <Popover>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className="justify-between font-normal"
-                >
-                  {field.value ? field.value : "Select"}
-                  <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0" align="start">
-              <Command>
-                <CommandInput placeholder="Search country..." icon={<Search className="w-4 h-4" />} />
-                <CommandEmpty>No country found.</CommandEmpty>
-                <CommandGroup className="max-h-[300px] overflow-y-auto">
-                  {sortedCountries.map((country) => (
-                    <CommandItem
-                      key={country.code}
-                      value={country.code}
-                      onSelect={() => {
-                        field.onChange(country.dial_code);
-                        if (onCountryChange) {
-                          onCountryChange(country.code, country.dial_code);
-                        }
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          field.value === country.dial_code ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {country.name} ({country.dial_code})
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
+        >
+          {value || placeholder}
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[200px] p-0">
+        <Command>
+          <CommandInput placeholder="Search code..." />
+          <CommandEmpty>No code found.</CommandEmpty>
+          <CommandGroup className="max-h-[300px] overflow-y-auto">
+            {countries.map((country) => (
+              <CommandItem
+                key={country.code}
+                value={country.dial_code}
+                onSelect={() => {
+                  onChange(country.dial_code);
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === country.dial_code ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {country.name} ({country.dial_code})
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 };
 

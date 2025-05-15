@@ -1,22 +1,78 @@
 
 import React from 'react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { InfoIcon } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { ClipboardCopy, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
-const DepositInstructions = () => {
+interface DepositInstructionsProps {
+  cryptocurrency: string;
+  walletAddress: string;
+  amount: string;
+}
+
+const DepositInstructions: React.FC<DepositInstructionsProps> = ({
+  cryptocurrency,
+  walletAddress,
+  amount
+}) => {
+  const { toast } = useToast();
+  
+  const handleCopyAddress = () => {
+    navigator.clipboard.writeText(walletAddress);
+    toast({
+      title: "Address copied",
+      description: "Wallet address copied to clipboard"
+    });
+  };
+  
   return (
-    <Alert>
-      <InfoIcon className="h-4 w-4" />
-      <AlertTitle>Important information</AlertTitle>
-      <AlertDescription>
-        <ul className="list-disc pl-5 space-y-1 text-sm">
-          <li>Send only the specified cryptocurrency to this address.</li>
-          <li>Double-check the wallet address before sending any funds.</li>
-          <li>Your deposit will require manual verification by our team.</li>
-          <li>You will receive an email confirmation once your deposit is approved.</li>
-        </ul>
-      </AlertDescription>
-    </Alert>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Info size={20} className="text-primary" />
+          Deposit Instructions
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <p className="text-sm text-muted-foreground mb-2">Send the following amount:</p>
+          <p className="font-medium text-lg">{amount} {cryptocurrency}</p>
+        </div>
+        
+        <Separator />
+        
+        <div>
+          <p className="text-sm text-muted-foreground mb-2">To this address:</p>
+          <div className="flex items-center gap-2">
+            <div className="bg-muted p-3 rounded-md flex-1 break-all text-sm">
+              {walletAddress}
+            </div>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={handleCopyAddress}
+              title="Copy address"
+            >
+              <ClipboardCopy size={16} />
+            </Button>
+          </div>
+        </div>
+        
+        <Separator />
+        
+        <div className="space-y-2">
+          <p className="font-medium">Important notes:</p>
+          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+            <li>Only send {cryptocurrency} to this address</li>
+            <li>Minimum deposit: 0.001 {cryptocurrency}</li>
+            <li>The deposit will be credited after 6 network confirmations</li>
+            <li>Upload the transaction receipt below for faster processing</li>
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

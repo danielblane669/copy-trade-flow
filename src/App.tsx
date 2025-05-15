@@ -26,8 +26,8 @@ function App() {
   return (
     <NextThemesProvider attribute="class" defaultTheme="light" enableSystem>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <Router>
+        <Router>
+          <AuthProvider>
             <Toaster />
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" />} />
@@ -48,8 +48,8 @@ function App() {
               } />
             </Routes>
             <LiveChat />
-          </Router>
-        </AuthProvider>
+          </AuthProvider>
+        </Router>
       </QueryClientProvider>
     </NextThemesProvider>
   );
