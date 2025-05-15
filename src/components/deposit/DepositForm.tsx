@@ -128,10 +128,14 @@ const DepositForm: React.FC<DepositFormProps> = () => {
         
         {user && (
           <FileUploadField
-            control={form.control}
             name="proofOfPayment"
             label="Proof of Payment (Optional)"
-            userId={user.id}
+            maxSizeMB={5}
+            acceptedFileTypes={{
+              'image/jpeg': ['.jpg', '.jpeg'],
+              'image/png': ['.png'],
+              'application/pdf': ['.pdf'],
+            }}
           />
         )}
 

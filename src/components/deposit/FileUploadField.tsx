@@ -7,6 +7,8 @@ import FileUpload, { FileUploadProps } from './FileUpload';
 interface FileUploadFieldProps extends Omit<FileUploadProps, 'value' | 'onChange'> {
   name: string;
   label: string;
+  maxSizeMB?: number;
+  acceptedFileTypes?: Record<string, string[]>;
 }
 
 const FileUploadField: React.FC<FileUploadFieldProps> = ({
