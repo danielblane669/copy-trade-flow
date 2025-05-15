@@ -31,16 +31,18 @@ const StatCard = ({ title, value, icon, changeType, changeValue }: StatCardProps
           )}
         </div>
         <div className="mt-2 relative">
+          <div className="flex items-center justify-between mb-1">
+            <button 
+              onClick={toggleVisibility} 
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={isVisible ? "Hide value" : "Show value"}
+            >
+              {isVisible ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           <p className="text-2xl font-bold">
             {isVisible ? value : '•••••'}
           </p>
-          <button 
-            onClick={toggleVisibility} 
-            className="absolute right-0 bottom-0 text-muted-foreground hover:text-foreground transition-colors"
-            aria-label={isVisible ? "Hide value" : "Show value"}
-          >
-            {isVisible ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
           {changeType && changeValue && (
             <div className="flex items-center mt-1">
               <span

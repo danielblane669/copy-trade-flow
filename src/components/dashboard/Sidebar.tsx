@@ -264,15 +264,7 @@ const Sidebar: React.FC<SidebarProps> = ({ defaultCollapsed = false, onNavigate 
               </button>
             )}
             <button 
-              onClick={() => {
-                const newCollapsed = !collapsed;
-                setCollapsed(newCollapsed);
-                const sidebarWidth = newCollapsed ? '72px' : '256px';
-                document.documentElement.style.setProperty('--sidebar-width', sidebarWidth);
-                document.querySelectorAll('[data-sidebar-expanded]').forEach(el => {
-                  el.setAttribute('data-sidebar-expanded', (!newCollapsed).toString());
-                });
-              }} 
+              onClick={toggleCollapse} 
               className="flex items-center text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground"
             >
               {collapsed ? (
