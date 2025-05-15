@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
@@ -136,7 +137,8 @@ const DepositForm = () => {
       if (data.receiptImage && data.receiptImage.length > 0) {
         const file = data.receiptImage[0];
         const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const folderPath = `${user.id}/${Math.random().toString(36).substring(2)}`;
+        const fileName = `${folderPath}.${fileExt}`;
         
         // Upload to Supabase Storage
         const { data: fileData, error: uploadError } = await supabase
@@ -151,7 +153,22 @@ const DepositForm = () => {
         receiptUrl = fileData?.path;
       }
 
-      // Save deposit request to database
+      // Insert into deposit_requests table first
+      const { error: depositRequestError } = await supabase
+        .from('deposit_requests')
+        .insert({
+          user_id: user.id,
+          amount: parseFloat(data.amount),
+          crypto_type: data.cryptoType,
+          wallet_address: data.walletAddress,
+          receipt_url: receiptUrl,
+        });
+
+      if (depositRequestError) {
+        throw new Error(`Error creating deposit request: ${depositRequestError.message}`);
+      }
+
+      // Save deposit request to transaction history table
       const { error: insertError } = await supabase
         .from('user_transactions')
         .insert({
@@ -318,10 +335,12 @@ const DepositForm = () => {
                 <FormItem>
                   <FormLabel>Proof of Payment <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
-                    <FileUpload 
-                      onChange={(files) => onChange(files)}
-                      {...rest}
-                    />
+                    <div className="max-w-full overflow-hidden">
+                      <FileUpload 
+                        onChange={(files) => onChange(files)}
+                        {...rest}
+                      />
+                    </div>
                   </FormControl>
                   <FormDescription>
                     Upload a screenshot or receipt of your transaction (required)

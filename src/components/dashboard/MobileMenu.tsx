@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { X, LayoutDashboard, ArrowDownToLine, ArrowUpFromLine, FileText } from 'lucide-react';
+import { X, LayoutDashboard, ArrowDownToLine, ArrowUpFromLine, FileText, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface MobileMenuProps {
   onClose: () => void;
@@ -17,7 +18,7 @@ const navigationItems = [
 ];
 
 const MobileMenu: React.FC<MobileMenuProps> = ({ onClose }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -41,6 +42,16 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ onClose }) => {
   const handleNavigation = (path: string) => {
     navigate(path);
     onClose();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      onClose();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   return (
@@ -85,6 +96,20 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ onClose }) => {
             );
           })}
         </nav>
+      </div>
+
+      {/* Footer with Theme Toggle and Logout */}
+      <div className="border-t border-border px-4 py-3">
+        <div className="flex items-center justify-between">
+          <ThemeToggle />
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-2 px-4 py-2 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
     </div>
   );

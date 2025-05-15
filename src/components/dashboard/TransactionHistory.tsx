@@ -6,17 +6,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const TransactionHistory = ({ limit }: { limit?: number }) => {
   const { user } = useAuth();
   
   const { data: transactions, isLoading, error } = useQuery({
-    queryKey: ['transactions'],
+    queryKey: ['transactions', user?.id, limit],
     queryFn: async () => {
+      if (!user?.id) throw new Error('User not authenticated');
+      
       let query = supabase
         .from('user_transactions')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
       if (limit) {
@@ -33,8 +36,23 @@ const TransactionHistory = ({ limit }: { limit?: number }) => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="w-full p-4 space-y-4">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-5 w-32" />
+          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-5 w-20" />
+          <Skeleton className="h-5 w-16" />
+        </div>
+        {[1, 2, 3].map(i => (
+          <div key={i} className="flex justify-between items-center">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-14" />
+          </div>
+        ))}
       </div>
     );
   }
@@ -42,15 +60,17 @@ const TransactionHistory = ({ limit }: { limit?: number }) => {
   if (error) {
     return (
       <div className="bg-destructive/10 p-4 rounded-md text-center">
-        An error occurred while loading your transactions
+        <p className="text-destructive">An error occurred while loading your transactions</p>
+        <p className="text-sm text-muted-foreground mt-2">{(error as Error)?.message || 'Please try again later'}</p>
       </div>
     );
   }
 
-  if (transactions?.length === 0) {
+  if (!transactions || transactions.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        No transactions found
+        <p className="mb-2">No transactions found</p>
+        <p className="text-sm">Your transactions will appear here once you make a deposit or receive a bonus.</p>
       </div>
     );
   }
@@ -68,7 +88,7 @@ const TransactionHistory = ({ limit }: { limit?: number }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions?.map((transaction) => (
+          {transactions.map((transaction) => (
             <TableRow key={transaction.id}>
               <TableCell className="font-medium">
                 {format(new Date(transaction.created_at), 'MMM d, yyyy')}
@@ -84,7 +104,7 @@ const TransactionHistory = ({ limit }: { limit?: number }) => {
               </TableCell>
               <TableCell className={transaction.transaction_type === 'withdrawal' ? 'text-red-500' : 'text-green-500'}>
                 {transaction.transaction_type === 'withdrawal' ? '-' : '+'}
-                ${transaction.amount.toString()}
+                ${transaction.amount.toFixed(2)}
               </TableCell>
               <TableCell className="capitalize">
                 <span 

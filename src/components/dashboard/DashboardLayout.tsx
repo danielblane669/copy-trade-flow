@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import MobileMenu from './MobileMenu';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Menu } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -36,7 +37,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         style={{ position: 'relative' }}
         data-sidebar-expanded="false"
       >
-        {/* Mobile menu trigger button - aligned with header */}
+        {/* Mobile header with menu button - aligned with content */}
         {isMobile && (
           <div className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border">
             <div className="flex justify-between items-center h-16 px-4">
@@ -46,13 +47,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 </div>
                 <span className="font-bold text-lg">CryptoBroker</span>
               </div>
-              <button 
-                onClick={toggleMobileMenu}
-                className="p-2 rounded-md hover:bg-primary/10 text-foreground"
-                aria-label="Open menu"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
+              <div className="flex items-center space-x-2">
+                <ThemeToggle />
+                <button 
+                  onClick={toggleMobileMenu}
+                  className="p-2 rounded-md hover:bg-primary/10 text-foreground"
+                  aria-label="Open menu"
+                >
+                  <Menu className="h-6 w-6" />
+                </button>
+              </div>
             </div>
           </div>
         )}

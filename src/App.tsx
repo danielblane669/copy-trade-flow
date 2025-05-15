@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import AuthRedirect from "@/components/auth/AuthRedirect";
+import LiveChat from "@/components/LiveChat";
 
 // Pages
 import Index from "./pages/Index";
@@ -19,7 +20,14 @@ import Withdraw from "./pages/Withdraw";
 import Transactions from "./pages/Transactions";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1
+    }
+  }
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -93,6 +101,7 @@ const App = () => (
               {/* Catch-all route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <LiveChat />
           </TooltipProvider>
         </ThemeProvider>
       </AuthProvider>

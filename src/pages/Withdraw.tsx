@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import Header from '@/components/dashboard/Header';
@@ -69,17 +69,21 @@ const Withdraw = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const { user } = useAuth();
   
-  const { data: portfolio } = useQuery({
+  const { data: portfolio, isLoading: loadingPortfolio } = useQuery({
     queryKey: ['portfolio'],
     queryFn: async () => {
+      if (!user) throw new Error("User not found");
+
       const { data, error } = await supabase
         .from('user_portfolios')
         .select('*')
+        .eq('user_id', user.id)
         .single();
       
       if (error) throw error;
       return data;
     },
+    enabled: !!user?.id,
   });
 
   const cryptoForm = useForm<z.infer<typeof cryptoWithdrawalSchema>>({
@@ -103,19 +107,43 @@ const Withdraw = () => {
   });
 
   async function onCryptoSubmit(values: z.infer<typeof cryptoWithdrawalSchema>) {
+    if (!user) {
+      toast({
+        title: "Authentication error",
+        description: "You must be logged in to make a withdrawal",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoadingSubmit(true);
     
     try {
-      // Add to transaction history
-      const { error } = await supabase.from('user_transactions').insert({
-        transaction_type: 'withdrawal',
-        amount: parseFloat(values.amount),
-        status: 'pending', // Pending until admin approves
-        user_id: user?.id,
-        transaction_details: `${values.cryptocurrency.toUpperCase()} withdrawal to ${values.walletAddress.substring(0, 8)}...`
-      });
+      // Add to withdrawal_requests table
+      const { error: withdrawalRequestError } = await supabase
+        .from('withdrawal_requests')
+        .insert({
+          user_id: user.id,
+          amount: parseFloat(values.amount),
+          withdrawal_type: 'crypto',
+          crypto_type: values.cryptocurrency,
+          wallet_address: values.walletAddress
+        });
       
-      if (error) throw error;
+      if (withdrawalRequestError) throw withdrawalRequestError;
+
+      // Add to transaction history
+      const { error: transactionError } = await supabase
+        .from('user_transactions')
+        .insert({
+          transaction_type: 'withdrawal',
+          amount: parseFloat(values.amount),
+          status: 'pending', // Pending until admin approves
+          user_id: user.id,
+          transaction_details: `${values.cryptocurrency.toUpperCase()} withdrawal to ${values.walletAddress.substring(0, 8)}...`
+        });
+      
+      if (transactionError) throw transactionError;
 
       // Show success notification
       setShowSuccess(true);
@@ -128,11 +156,11 @@ const Withdraw = () => {
       setTimeout(() => {
         navigate('/dashboard');
       }, 10000);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to submit withdrawal request. Please try again.",
+        description: error.message || "Failed to submit withdrawal request. Please try again.",
       });
       console.error("Withdrawal error:", error);
     } finally {
@@ -141,19 +169,45 @@ const Withdraw = () => {
   }
 
   async function onBankSubmit(values: z.infer<typeof bankWithdrawalSchema>) {
+    if (!user) {
+      toast({
+        title: "Authentication error",
+        description: "You must be logged in to make a withdrawal",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoadingSubmit(true);
     
     try {
-      // Add to transaction history
-      const { error } = await supabase.from('user_transactions').insert({
-        transaction_type: 'withdrawal',
-        amount: parseFloat(values.amount),
-        status: 'pending', // Pending until admin approves
-        user_id: user?.id,
-        transaction_details: `Bank withdrawal to ${values.bankName} - ${values.accountName}`
-      });
+      // Add to withdrawal_requests table
+      const { error: withdrawalRequestError } = await supabase
+        .from('withdrawal_requests')
+        .insert({
+          user_id: user.id,
+          amount: parseFloat(values.amount),
+          withdrawal_type: 'bank',
+          bank_name: values.bankName,
+          account_number: values.accountNumber,
+          account_name: values.accountName,
+          swift_code: values.swiftCode
+        });
       
-      if (error) throw error;
+      if (withdrawalRequestError) throw withdrawalRequestError;
+      
+      // Add to transaction history
+      const { error: transactionError } = await supabase
+        .from('user_transactions')
+        .insert({
+          transaction_type: 'withdrawal',
+          amount: parseFloat(values.amount),
+          status: 'pending', // Pending until admin approves
+          user_id: user.id,
+          transaction_details: `Bank withdrawal to ${values.bankName} - ${values.accountName}`
+        });
+      
+      if (transactionError) throw transactionError;
 
       // Show success notification
       setShowSuccess(true);
@@ -166,11 +220,11 @@ const Withdraw = () => {
       setTimeout(() => {
         navigate('/dashboard');
       }, 10000);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error", 
-        description: "Failed to submit withdrawal request. Please try again.",
+        description: error.message || "Failed to submit withdrawal request. Please try again.",
       });
       console.error("Withdrawal error:", error);
     } finally {
@@ -220,7 +274,7 @@ const Withdraw = () => {
             <p className="text-muted-foreground">Choose your preferred withdrawal method.</p>
           </div>
 
-          {portfolio && (
+          {!loadingPortfolio && portfolio && (
             <Card className="mb-6 bg-background/50">
               <CardContent className="pt-4">
                 <div className="flex justify-between items-center">

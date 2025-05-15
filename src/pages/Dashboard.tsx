@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import Header from '@/components/dashboard/Header';
 import StatCard from '@/components/dashboard/StatCard';
@@ -16,13 +17,16 @@ const Dashboard = () => {
   const firstName = user?.user_metadata?.first_name || 'User';
   const isMobile = useIsMobile();
   
-  // Fetch user portfolio data
+  // Fetch user portfolio data with minimal delay
   const { data: portfolio, isLoading } = useQuery({
-    queryKey: ['portfolio'],
+    queryKey: ['portfolio', user?.id],
     queryFn: async () => {
+      if (!user) throw new Error('User not authenticated');
+      
       const { data, error } = await supabase
         .from('user_portfolios')
         .select('*')
+        .eq('user_id', user.id)
         .single();
       
       if (error) {
@@ -30,7 +34,7 @@ const Dashboard = () => {
           // Create a new portfolio for the user if it doesn't exist
           const { data: newPortfolio, error: createError } = await supabase
             .from('user_portfolios')
-            .insert({ user_id: user?.id })
+            .insert({ user_id: user.id })
             .select('*')
             .single();
             
@@ -42,6 +46,28 @@ const Dashboard = () => {
       return data;
     },
     enabled: !!user?.id,
+    staleTime: 60000, // 1 minute - keep data fresh for 1 minute
+    refetchOnMount: true, // Refresh when component mounts
+  });
+
+  // Prefetch transaction data
+  useQuery({
+    queryKey: ['transactions', user?.id, 5],
+    queryFn: async () => {
+      if (!user) throw new Error('User not authenticated');
+      
+      const { data, error } = await supabase
+        .from('user_transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+    staleTime: 60000, // 1 minute
   });
   
   return (
@@ -109,7 +135,7 @@ const Dashboard = () => {
         </div>
         
         <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <TransactionHistory />
+          <TransactionHistory limit={5} />
         </div>
       </div>
     </DashboardLayout>
