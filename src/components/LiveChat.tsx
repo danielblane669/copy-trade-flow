@@ -1,28 +1,44 @@
 
 import React, { useEffect } from 'react';
 
-const LiveChat: React.FC = () => {
+declare global {
+  interface Window {
+    $crisp: any;
+    CRISP_WEBSITE_ID: string;
+    smartsupp: any;
+  }
+}
+
+const LiveChat = () => {
   useEffect(() => {
-    // Add Smartsupp chat widget script
+    // Smartsupp live chat code
     const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.async = true;
     script.innerHTML = `
       var _smartsupp = _smartsupp || {};
       _smartsupp.key = 'YOUR_SMARTSUPP_KEY';
       window.smartsupp||(function(d) {
         var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
-        s=d.getElementsByTagName('script')[0];c=d.createElement('script');
-        c.type='text/javascript';c.charset='utf-8';c.async=true;
-        c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+        s=d.createElement('script');c=d.getElementsByTagName('script')[0];
+        s.type='text/javascript';s.charset='utf-8';s.async=true;
+        s.src='https://www.smartsuppchat.com/loader.js?';c.parentNode.insertBefore(s,c);
       })(document);
     `;
+
+    // Add script to document
     document.head.appendChild(script);
+
+    // Optional: Configure Smartsupp
+    window.smartsupp('theme:set', 'indigo');
+    window.smartsupp('name', 'CryptoBroker Support');
     
     return () => {
-      // Clean up script when component unmounts
+      // Remove script on unmount if needed
       document.head.removeChild(script);
     };
   }, []);
-  
+
   return null; // This component doesn't render anything visible
 };
 

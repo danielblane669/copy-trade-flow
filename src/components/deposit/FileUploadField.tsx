@@ -1,41 +1,50 @@
 
-import React, { useState } from 'react';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import React from 'react';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Control } from 'react-hook-form';
 import FileUpload from './FileUpload';
 
 interface FileUploadFieldProps {
-  control: any;
+  control: Control<any>;
   name: string;
+  label: string;
   userId: string;
+  maxSizeMB?: number;
+  acceptedFileTypes?: {
+    'image/jpeg': ['.jpg', '.jpeg'];
+    'image/png': ['.png'];
+    'application/pdf': ['.pdf'];
+  };
 }
 
-const FileUploadField: React.FC<FileUploadFieldProps> = ({ control, name, userId }) => {
-  const [isUploading, setIsUploading] = useState(false);
-  
+const FileUploadField: React.FC<FileUploadFieldProps> = ({
+  control,
+  name,
+  label,
+  userId,
+  maxSizeMB = 2,
+  acceptedFileTypes = {
+    'image/jpeg': ['.jpg', '.jpeg'],
+    'image/png': ['.png'],
+    'application/pdf': ['.pdf'],
+  },
+}) => {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Payment Receipt</FormLabel>
+          <FormLabel>{label}</FormLabel>
           <FormControl>
             <FileUpload
               value={field.value}
-              onChange={(url) => field.onChange(url)}
-              onUploadStateChange={setIsUploading}
+              onChange={field.onChange}
               userId={userId}
-              maxSizeMB={5}
-              acceptedFileTypes={{
-                'image/jpeg': ['.jpg', '.jpeg'],
-                'image/png': ['.png'],
-                'application/pdf': ['.pdf']
-              }}
+              maxSizeMB={maxSizeMB}
+              acceptedFileTypes={acceptedFileTypes}
             />
           </FormControl>
-          <FormDescription>
-            Upload a screenshot or PDF of the payment confirmation. Maximum file size: 5MB.
-          </FormDescription>
           <FormMessage />
         </FormItem>
       )}

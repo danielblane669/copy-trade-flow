@@ -1,21 +1,21 @@
 
 import React from 'react';
-import { FormControl, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Control } from 'react-hook-form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bitcoin, Coins } from 'lucide-react';
 
-// Define cryptocurrency options
+interface CryptoSelectorProps {
+  control: Control<any>;
+  name: string;
+}
+
 const cryptoOptions = [
   { label: "Bitcoin (BTC)", value: "bitcoin", icon: <Bitcoin className="h-5 w-5 mr-2" /> },
   { label: "Ethereum (ETH)", value: "ethereum", icon: <Coins className="h-5 w-5 mr-2" /> },
   { label: "Litecoin (LTC)", value: "litecoin", icon: <Coins className="h-5 w-5 mr-2" /> },
   { label: "XRP", value: "xrp", icon: <Coins className="h-5 w-5 mr-2" /> },
 ];
-
-interface CryptoSelectorProps {
-  control: any;
-  name: string;
-}
 
 const CryptoSelector: React.FC<CryptoSelectorProps> = ({ control, name }) => {
   return (
