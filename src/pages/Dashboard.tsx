@@ -7,7 +7,7 @@ import { Wallet, TrendingUp, Gift, ArrowDownToLine } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import TradingViewChart from '@/components/dashboard/TradingViewChart';
+import TradingViewSymbolOverview from '@/components/dashboard/TradingViewSymbolOverview';
 import TransactionHistory from '@/components/dashboard/TransactionHistory';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -117,12 +117,12 @@ const Dashboard = () => {
       <div className="bg-card rounded-xl p-4 md:p-6 border border-border mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-4 md:mb-6">
           <div>
-            <h2 className="text-base md:text-lg font-semibold">Trading Activity</h2>
+            <h2 className="text-base md:text-lg font-semibold">Cryptocurrency Market</h2>
             <p className="text-xs md:text-sm text-muted-foreground">Live cryptocurrency market data</p>
           </div>
         </div>
         
-        <TradingViewChart height={isMobile ? 300 : 400} />
+        <TradingViewSymbolOverview height={isMobile ? 300 : 400} theme="light" />
       </div>
       
       {/* Transaction History */}

@@ -61,7 +61,7 @@ const StatCard: React.FC<StatCardProps> = ({
             </div>
           </div>
           {icon && (
-            <div className="p-2 rounded-md bg-secondary text-secondary-foreground">
+            <div className="p-2 rounded-md bg-[#9b87f5] text-white">
               {icon}
             </div>
           )}

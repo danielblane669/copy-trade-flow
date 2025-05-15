@@ -266,9 +266,45 @@ const Signup = () => {
               render={({ field }) => (
                 <FormItem className="w-1/3">
                   <FormLabel>Code</FormLabel>
-                  <FormControl>
-                    <Input readOnly {...field} />
-                  </FormControl>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className="w-full justify-between"
+                        >
+                          {field.value || "Code"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search code..." />
+                        <CommandEmpty>No code found.</CommandEmpty>
+                        <CommandGroup className="max-h-[300px] overflow-y-auto">
+                          {countries.map((country) => (
+                            <CommandItem
+                              key={country.code}
+                              value={country.dial_code}
+                              onSelect={() => {
+                                form.setValue("countryCode", country.dial_code);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === country.dial_code ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {country.name} ({country.dial_code})
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
